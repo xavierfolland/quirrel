@@ -13,13 +13,13 @@ test.afterEach(async () => {
   await Promise.all(cleanup.map((clean) => clean()));
 });
 
-export async function expectToShowAttachingToQuirrel(page: Page) {
+async function expectToShowAttachingToQuirrel(page: Page) {
   const attachingEl = await page.$("#attaching-to-quirrel");
   expect(attachingEl).to.exist;
   expect(await attachingEl?.innerText()).to.equal("Attaching to Quirrel ...");
 }
 
-export async function expectToShowJobTable(page: Page) {
+async function expectToShowJobTable(page: Page) {
   const tableEl = await page.$("[data-test-class=table]");
   expect(tableEl).to.exist;
   expect(await tableEl?.textContent()).to.equal(

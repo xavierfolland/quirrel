@@ -21,7 +21,7 @@
   "module": "dist/esm/src/index.js",
   "version": "1.14.1",
   "engines": {
-    "node": "14 || 15 || 16 || 17 || 18 || 19 || 20"
+    "node": "22"
   },
   "bin": {
     "quirrel": "cli.js"
@@ -113,5 +113,16 @@
     "superjson": "^1.10.1",
     "uuid": "^9.0.0",
     "zod": "^3.9.8"
+  },
+  "allowScripts": {
+    "@datadog/native-appsec@1.2.1": true,
+    "@datadog/native-metrics@1.4.3": true,
+    "bufferutil@4.0.1": true,
+    "dd-trace@3.5.0": true,
+    "es5-ext@0.10.62": true,
+    "fsevents@2.3.2": true,
+    "protobufjs@7.1.2": true,
+    "utf-8-validate@5.0.2": true,
+    "@datadog/pprof@1.0.2": true
   }
 }

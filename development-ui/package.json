@@ -49,5 +49,11 @@
     "process": false,
     "crypto": false,
     "node-fetch": false
+  },
+  "allowScripts": {
+    "lmdb": true,
+    "@parcel/watcher": true,
+    "msgpackr-extract": true,
+    "playwright@1.35.1": true
   }
 }

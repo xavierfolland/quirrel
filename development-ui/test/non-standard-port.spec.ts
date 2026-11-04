@@ -1,10 +1,7 @@
 import delay from "delay";
 import { runQuirrel } from "./runQuirrel";
-import {
-  expectToShowAttachingToQuirrel,
-  expectToShowJobTable,
-} from "./connection-retry.spec";
-import { test } from "@playwright/test";
+import { Page, test } from "@playwright/test";
+import { expect } from "chai";
 
 let cleanup: (() => Promise<void>)[] = [];
 
@@ -15,6 +12,20 @@ test.beforeEach(() => {
 test.afterEach(async () => {
   await Promise.all(cleanup.map((clean) => clean()));
 });
+
+async function expectToShowAttachingToQuirrel(page: Page) {
+  const attachingEl = await page.$("#attaching-to-quirrel");
+  expect(attachingEl).to.exist;
+  expect(await attachingEl?.innerText()).to.equal("Attaching to Quirrel ...");
+}
+
+async function expectToShowJobTable(page: Page) {
+  const tableEl = await page.$("[data-test-class=table]");
+  expect(tableEl).to.exist;
+  expect(await tableEl?.textContent()).to.equal(
+    ["Endpoint", "ID", "Run At", "Payload"].join("")
+  );
+}
 
 test("allows connecting to non-standard ports", async ({ page }) => {
   const quirrelServer = await runQuirrel({ port: 8000 });

@@ -13,7 +13,7 @@ test.afterEach(async () => {
   await Promise.all(cleanup.map((clean) => clean()));
 });
 
-export async function expectTableCellToEqual(
+async function expectTableCellToEqual(
   row: number,
   column: number,
   value: string,
@@ -26,7 +26,7 @@ export async function expectTableCellToEqual(
   ).to.equal(value);
 }
 
-export async function expectTableToBeEmpty(_page: Page) {
+async function expectTableToBeEmpty(_page: Page) {
   const table = await _page.$(`tbody`);
   expect(await table?.innerHTML()).to.equal("");
 }
