@@ -3,16 +3,16 @@ title: Netlify
 ---
 
 ```ts title="functions/someQueue.js"
-import { Queue } from "quirrel/netlify";
+import { Queue } from 'quirrel/netlify'
 
 export const handler = Queue(
-  ".netlify/functions/someQueue",
+  '.netlify/functions/someQueue',
   async (job, meta) => {
     // do something
-  }
-);
+  },
+)
 
-export default handler;
+export default handler
 ```
 
 Creates a new Queue.

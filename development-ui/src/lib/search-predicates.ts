@@ -1,8 +1,6 @@
 export function objectIncludesSearchterm(
   object: Record<string, any>,
-  searchTerm: string
+  searchTerm: string,
 ): boolean {
-  return JSON.stringify(object)
-    .toLowerCase()
-    .includes(searchTerm.toLowerCase());
+  return JSON.stringify(object).toLowerCase().includes(searchTerm.toLowerCase())
 }

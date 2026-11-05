@@ -1,4 +1,4 @@
-import enqueueGreeting from "app/mutations/enqueueGreeting"
+import enqueueGreeting from 'app/mutations/enqueueGreeting'
 
 export default function Home() {
   return (
@@ -10,7 +10,7 @@ export default function Home() {
 
         const form = new FormData(target)
 
-        await enqueueGreeting(form.get("name") as string)
+        await enqueueGreeting(form.get('name') as string)
 
         target.reset()
       }}

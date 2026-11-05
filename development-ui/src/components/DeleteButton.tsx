@@ -1,11 +1,11 @@
-import { useLoading } from "../hooks/useLoading";
+import { useLoading } from '../hooks/useLoading'
 
 interface DeleteButtonProps {
-  delete(): Promise<void>;
+  delete(): Promise<void>
 }
 
 export function DeleteButton(props: DeleteButtonProps) {
-  const [isLoading, withLoading] = useLoading();
+  const [isLoading, withLoading] = useLoading()
 
   return (
     <button
@@ -13,7 +13,7 @@ export function DeleteButton(props: DeleteButtonProps) {
       onClick={() => withLoading(props.delete)}
     >
       {isLoading ? (
-        "..."
+        '...'
       ) : (
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -30,5 +30,5 @@ export function DeleteButton(props: DeleteButtonProps) {
         </svg>
       )}
     </button>
-  );
+  )
 }

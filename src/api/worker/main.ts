@@ -1,8 +1,9 @@
-require("../shared/tracer")("quirrel-worker");
-import { createWorker } from ".";
-import { cliWithConfig } from "../../shared/cliWithConfig";
-import { createRedisFactory } from "../shared/create-redis";
-import { StructuredLogger } from "../shared/structured-logger";
+import { createWorker } from '.'
+import { cliWithConfig } from '../../shared/cliWithConfig'
+import { createRedisFactory } from '../shared/create-redis'
+import { StructuredLogger } from '../shared/structured-logger'
+
+require('../shared/tracer')('quirrel-worker')
 
 cliWithConfig(async (config) => {
   const {
@@ -17,10 +18,10 @@ cliWithConfig(async (config) => {
     INCIDENT_RECEIVER_PASSPHRASE,
     ENABLE_SSRF_PREVENTION,
     POSTHOG_API_KEY,
-  } = config;
+  } = config
 
   const worker = await createWorker({
-    redisFactory: createRedisFactory(REDIS_URL ?? "redis://localhost:6379", {
+    redisFactory: createRedisFactory(REDIS_URL ?? 'redis://localhost:6379', {
       tlsCa: {
         base64: REDIS_TLS_CA_BASE64,
         path: REDIS_TLS_CA_FILE,
@@ -28,7 +29,7 @@ cliWithConfig(async (config) => {
     }),
     enableUsageMetering: Boolean(ENABLE_USAGE_METERING),
     runningInDocker: Boolean(RUNNING_IN_DOCKER),
-    concurrency: Number.parseInt(CONCURRENCY ?? "") || 100,
+    concurrency: Number.parseInt(CONCURRENCY ?? '') || 100,
     disableTelemetry: Boolean(DISABLE_TELEMETRY),
     logger: new StructuredLogger(),
     enableSSRFPrevention: !!ENABLE_SSRF_PREVENTION,
@@ -39,9 +40,9 @@ cliWithConfig(async (config) => {
           passphrase: INCIDENT_RECEIVER_PASSPHRASE!,
         }
       : undefined,
-  });
+  })
 
   return {
     teardown: worker.close,
-  };
-});
+  }
+})

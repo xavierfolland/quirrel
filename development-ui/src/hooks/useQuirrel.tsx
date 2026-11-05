@@ -1,3 +1,4 @@
+import { produce } from 'immer'
 import React, {
   PropsWithChildren,
   useCallback,
@@ -5,89 +6,89 @@ import React, {
   useEffect,
   useRef,
   useState,
-} from "react";
-import { BaseLayout } from "../layouts/BaseLayout";
-import { QuirrelClient, Job } from "../../../client";
-import { produce } from "immer";
-import { getConnectionDetailsFromHash } from "../lib/encrypted-connection-details";
-import { ConfigContext } from "..";
+} from 'react'
+
+import { ConfigContext } from '..'
+import { Job, QuirrelClient } from '../../../client'
+import { BaseLayout } from '../layouts/BaseLayout'
+import { getConnectionDetailsFromHash } from '../lib/encrypted-connection-details'
 
 function ensureEndsWithSlash(v: string) {
-  if (v.endsWith("/")) {
-    return v;
+  if (v.endsWith('/')) {
+    return v
   }
-  return v + "/";
+  return v + '/'
 }
 
 function withoutTrailingSlash(url: string): string {
-  if (url.endsWith("/")) {
-    return url.slice(0, url.length - 1);
+  if (url.endsWith('/')) {
+    return url.slice(0, url.length - 1)
   }
 
-  return url;
+  return url
 }
 
 function withoutBeginningSlash(url: string): string {
-  if (url.startsWith("/")) {
-    return url.slice(1);
+  if (url.startsWith('/')) {
+    return url.slice(1)
   }
 
-  return url;
+  return url
 }
 
-let alreadyAlerted = false;
+let alreadyAlerted = false
 
-type JobDTO = Omit<Job<any>, "invoke" | "delete" | "runAt"> & {
-  runAt: string;
-};
+type JobDTO = Omit<Job<any>, 'invoke' | 'delete' | 'runAt'> & {
+  runAt: string
+}
 
 export interface QuirrelInstanceDetails {
-  baseUrl: string;
-  token?: string;
-  encryptionSecret?: string;
+  baseUrl: string
+  token?: string
+  encryptionSecret?: string
 }
 
 namespace Quirrel {
   export interface ContextValue {
-    activity: Quirrel.Activity[];
-    pending: Record<string, Quirrel.JobDescriptor>;
-    completed: Record<string, Quirrel.JobDescriptor>;
-    invoke(job: Quirrel.JobDescriptor): Promise<void>;
-    delete(job: Quirrel.JobDescriptor): Promise<void>;
-    connectedTo?: QuirrelInstanceDetails;
-    connectTo: (instance: QuirrelInstanceDetails) => void;
+    activity: Quirrel.Activity[]
+    pending: Record<string, Quirrel.JobDescriptor>
+    completed: Record<string, Quirrel.JobDescriptor>
+    invoke(job: Quirrel.JobDescriptor): Promise<void>
+    delete(job: Quirrel.JobDescriptor): Promise<void>
+    connectedTo?: QuirrelInstanceDetails
+    connectTo: (instance: QuirrelInstanceDetails) => void
   }
 
   export namespace Activity {
     export interface Scheduled {
-      type: "scheduled";
-      payload: JobDTO;
-      date: number;
+      type: 'scheduled'
+      payload: JobDTO
+      date: number
     }
     export interface Started {
-      type: "started";
-      payload: { id: string; endpoint: string };
-      date: number;
+      type: 'started'
+      payload: { id: string; endpoint: string }
+      date: number
     }
     export interface Completed {
-      type: "completed";
-      payload: { id: string; endpoint: string };
-      date: number;
+      type: 'completed'
+      payload: { id: string; endpoint: string }
+      date: number
     }
     export interface Rescheduled {
-      type: "rescheduled";
-      payload: { id: string; endpoint: string; runAt: string };
-      date: number;
+      type: 'rescheduled'
+      payload: { id: string; endpoint: string; runAt: string }
+      date: number
     }
     export interface Invoked {
-      type: "invoked";
-      payload: { id: string; endpoint: string };
-      date: number;
+      type: 'invoked'
+      payload: { id: string; endpoint: string }
+      date: number
     }
     export interface Deleted {
-      type: "deleted";
-      payload: { id: string; endpoint: string };
-      date: number;
+      type: 'deleted'
+      payload: { id: string; endpoint: string }
+      date: number
     }
   }
 
@@ -97,15 +98,15 @@ namespace Quirrel {
     | Activity.Invoked
     | Activity.Rescheduled
     | Activity.Deleted
-    | Activity.Started;
+    | Activity.Started
 
   export interface JobDescriptor extends JobDTO {
-    started: boolean;
+    started: boolean
   }
 }
 
-function jobKey(descriptor: Pick<Quirrel.JobDescriptor, "endpoint" | "id">) {
-  return descriptor.endpoint + ";" + descriptor.id;
+function jobKey(descriptor: Pick<Quirrel.JobDescriptor, 'endpoint' | 'id'>) {
+  return descriptor.endpoint + ';' + descriptor.id
 }
 
 const mockCtxValue: Quirrel.ContextValue = {
@@ -115,34 +116,34 @@ const mockCtxValue: Quirrel.ContextValue = {
   invoke: async () => {},
   delete: async () => {},
   connectTo: () => {},
-};
+}
 
-const QuirrelCtx = React.createContext<Quirrel.ContextValue>(mockCtxValue);
+const QuirrelCtx = React.createContext<Quirrel.ContextValue>(mockCtxValue)
 
 export function useQuirrel() {
-  return useContext(QuirrelCtx);
+  return useContext(QuirrelCtx)
 }
 
 function useImmer<T>(defaultValue: T) {
-  const [value, setState] = useState(defaultValue);
+  const [value, setState] = useState(defaultValue)
   const setStateWithImmer = useCallback(
     (recipe: (v: T) => void): void => {
-      setState((prevState) => produce(prevState, recipe));
+      setState((prevState) => produce(prevState, recipe))
     },
-    [setState]
-  );
+    [setState],
+  )
 
-  return [value, setStateWithImmer] as const;
+  return [value, setStateWithImmer] as const
 }
 
 function useJobsReducer() {
   const [state, setState] = useImmer<
-    Pick<Quirrel.ContextValue, "activity" | "pending" | "completed">
+    Pick<Quirrel.ContextValue, 'activity' | 'pending' | 'completed'>
   >({
     activity: [],
     completed: {},
     pending: {},
-  });
+  })
 
   const dump = useCallback(
     (jobs: JobDTO[]) =>
@@ -151,68 +152,68 @@ function useJobsReducer() {
           state.pending[jobKey(j)] = {
             ...j,
             started: false,
-          };
-        });
+          }
+        })
       }),
-    [setState]
-  );
+    [setState],
+  )
 
   const onActivity = useCallback(
     (action: Quirrel.Activity) =>
       setState((state) => {
-        state.activity.push(action);
+        state.activity.push(action)
 
         function findJob(arg: { endpoint: string; id: string }) {
-          return state.pending[jobKey(arg)];
+          return state.pending[jobKey(arg)]
         }
 
         switch (action.type) {
-          case "started": {
-            const job = findJob(action.payload);
-            job.started = true;
-            break;
+          case 'started': {
+            const job = findJob(action.payload)
+            job.started = true
+            break
           }
 
-          case "scheduled": {
+          case 'scheduled': {
             state.pending[jobKey(action.payload)] = {
               ...action.payload,
               started: false,
-            };
-            break;
+            }
+            break
           }
 
-          case "invoked": {
-            const job = findJob(action.payload);
-            job.runAt = new Date(action.date).toISOString();
-            break;
+          case 'invoked': {
+            const job = findJob(action.payload)
+            job.runAt = new Date(action.date).toISOString()
+            break
           }
 
-          case "deleted": {
-            delete state.pending[jobKey(action.payload)];
-            break;
+          case 'deleted': {
+            delete state.pending[jobKey(action.payload)]
+            break
           }
 
-          case "rescheduled": {
-            const rescheduledJob = state.completed[jobKey(action.payload)];
-            delete state.completed[jobKey(action.payload)];
+          case 'rescheduled': {
+            const rescheduledJob = state.completed[jobKey(action.payload)]
+            delete state.completed[jobKey(action.payload)]
 
-            rescheduledJob.runAt = action.payload.runAt;
-            state.pending[jobKey(rescheduledJob)] = rescheduledJob;
-            break;
+            rescheduledJob.runAt = action.payload.runAt
+            state.pending[jobKey(rescheduledJob)] = rescheduledJob
+            break
           }
 
-          case "completed": {
-            const completedJob = state.pending[jobKey(action.payload)];
-            state.completed[jobKey(completedJob)] = completedJob;
+          case 'completed': {
+            const completedJob = state.pending[jobKey(action.payload)]
+            state.completed[jobKey(completedJob)] = completedJob
 
-            delete state.pending[jobKey(action.payload)];
+            delete state.pending[jobKey(action.payload)]
 
-            break;
+            break
           }
         }
       }),
-    [setState]
-  );
+    [setState],
+  )
 
   return [
     state,
@@ -220,27 +221,25 @@ function useJobsReducer() {
       dump,
       onActivity,
     },
-  ] as const;
+  ] as const
 }
 
 function useQuirrelClient() {
-  const [
-    instanceDetails,
-    setInstanceDetails,
-  ] = useState<QuirrelInstanceDetails>();
-  const clientGetter = useRef<(endpoint: string) => QuirrelClient<unknown>>();
-  const [isConnected, setIsConnected] = useState(false);
+  const [instanceDetails, setInstanceDetails] =
+    useState<QuirrelInstanceDetails>()
+  const clientGetter = useRef<(endpoint: string) => QuirrelClient<unknown>>()
+  const [isConnected, setIsConnected] = useState(false)
 
   const useInstance = useCallback(
     (instanceDetails: QuirrelInstanceDetails) => {
-      let { baseUrl, token } = instanceDetails;
+      let { baseUrl, token } = instanceDetails
 
       function getClient(endpoint: string) {
-        const url = new URL(endpoint);
-        if (!["http:", "https:"].includes(url.protocol)) {
-          const error = new Error("Not a valid endpoint: " + endpoint);
-          alert(error);
-          throw error;
+        const url = new URL(endpoint)
+        if (!['http:', 'https:'].includes(url.protocol)) {
+          const error = new Error('Not a valid endpoint: ' + endpoint)
+          alert(error)
+          throw error
         }
 
         return new QuirrelClient({
@@ -255,30 +254,30 @@ function useQuirrelClient() {
           },
           catchDecryptionErrors(error) {
             if (alreadyAlerted) {
-              return;
+              return
             }
 
-            alreadyAlerted = true;
+            alreadyAlerted = true
             window.alert(
-              "One of your jobs can't be decrypted in the browser, since it's been encrypted with an old version of Quirrel. No worries though - this doesn't affect your application at all, since that uses Node's Crypto."
-            );
+              "One of your jobs can't be decrypted in the browser, since it's been encrypted with an old version of Quirrel. No worries though - this doesn't affect your application at all, since that uses Node's Crypto.",
+            )
           },
-        });
+        })
       }
 
-      clientGetter.current = getClient;
-      setInstanceDetails(instanceDetails);
-      setIsConnected(true);
+      clientGetter.current = getClient
+      setInstanceDetails(instanceDetails)
+      setIsConnected(true)
 
-      return getClient;
+      return getClient
     },
-    [setInstanceDetails, clientGetter, setIsConnected]
-  );
+    [setInstanceDetails, clientGetter, setIsConnected],
+  )
 
   const connectionWasAborted = useCallback(() => {
-    setIsConnected(false);
-    clientGetter.current = undefined;
-  }, [setIsConnected, clientGetter]);
+    setIsConnected(false)
+    clientGetter.current = undefined
+  }, [setIsConnected, clientGetter])
 
   return {
     isConnected,
@@ -286,204 +285,204 @@ function useQuirrelClient() {
     useInstance,
     getFor: clientGetter.current,
     connectionWasAborted,
-  };
+  }
 }
 
 async function isHealthy(
-  baseUrl: string
+  baseUrl: string,
 ): Promise<{ isHealthy: boolean; stopPolling?: boolean }> {
-  baseUrl = withoutTrailingSlash(baseUrl);
-  const connectsToLocalhost = baseUrl.includes("localhost");
+  baseUrl = withoutTrailingSlash(baseUrl)
+  const connectsToLocalhost = baseUrl.includes('localhost')
   try {
-    const res = await fetch(baseUrl + "/health");
-    const isHealthy = res.status === 200;
+    const res = await fetch(baseUrl + '/health')
+    const isHealthy = res.status === 200
     if (connectsToLocalhost) {
-      return { isHealthy, stopPolling: false };
+      return { isHealthy, stopPolling: false }
     } else {
       if (isHealthy) {
-        return { isHealthy: true };
+        return { isHealthy: true }
       } else {
-        window.alert("Connection failed, server is unhealthy.");
-        return { isHealthy: false, stopPolling: true };
+        window.alert('Connection failed, server is unhealthy.')
+        return { isHealthy: false, stopPolling: true }
       }
     }
   } catch (error) {
-    if (error.message === "Not allowed to request resource") {
+    if (error.message === 'Not allowed to request resource') {
       window.alert(
-        "This browser does not support connecting to your local Quirrel instance. Please use a different browser."
-      );
-      return { isHealthy: false, stopPolling: true };
+        'This browser does not support connecting to your local Quirrel instance. Please use a different browser.',
+      )
+      return { isHealthy: false, stopPolling: true }
     }
 
     if (!connectsToLocalhost) {
-      console.log(error);
-      window.alert("Connection failed, server is unreachable.");
-      return { isHealthy: false, stopPolling: true };
+      console.log(error)
+      window.alert('Connection failed, server is unreachable.')
+      return { isHealthy: false, stopPolling: true }
     } else {
-      return { isHealthy: false, stopPolling: false };
+      return { isHealthy: false, stopPolling: false }
     }
   }
 }
 
 async function getAllEndpoints(client: QuirrelClient<any>) {
-  const endpointsRes = await client.makeRequest("/queues");
+  const endpointsRes = await client.makeRequest('/queues')
 
   if (endpointsRes.status !== 200) {
-    return [[], "unauthorized"] as const;
+    return [[], 'unauthorized'] as const
   }
 
-  const endpoints: string[] = await endpointsRes.json();
-  return [endpoints] as const;
+  const endpoints: string[] = await endpointsRes.json()
+  return [endpoints] as const
 }
 
 export function QuirrelProvider(props: PropsWithChildren<{}>) {
-  const [jobsState, { dump, onActivity }] = useJobsReducer();
-  const quirrelClient = useQuirrelClient();
-  const connectedSocket = useRef<WebSocket>();
-  const config = useContext(ConfigContext);
+  const [jobsState, { dump, onActivity }] = useJobsReducer()
+  const quirrelClient = useQuirrelClient()
+  const connectedSocket = useRef<WebSocket>()
+  const config = useContext(ConfigContext)
 
   const invoke = useCallback(
     async (job: Quirrel.JobDescriptor) => {
-      const client = quirrelClient.getFor!(job.endpoint);
-      await client.invoke(job.id);
+      const client = quirrelClient.getFor!(job.endpoint)
+      await client.invoke(job.id)
     },
-    [quirrelClient.getFor]
-  );
+    [quirrelClient.getFor],
+  )
 
   const deleteCallback = useCallback(
     async (job: Quirrel.JobDescriptor) => {
-      const client = quirrelClient.getFor!(job.endpoint);
-      await client.delete(job.id);
+      const client = quirrelClient.getFor!(job.endpoint)
+      await client.delete(job.id)
     },
-    [quirrelClient.getFor]
-  );
+    [quirrelClient.getFor],
+  )
 
   const loadInitialJobs = useCallback(
     async (getClient: ReturnType<typeof quirrelClient.useInstance>) => {
       const [endpoints, error] = await getAllEndpoints(
-        getClient("https://this.is.not.read/")
-      );
+        getClient('https://this.is.not.read/'),
+      )
       if (error) {
-        return error;
+        return error
       }
 
       for (const endpoint of endpoints) {
-        const client = getClient(endpoint);
+        const client = getClient(endpoint)
 
         for await (const jobs of client.get()) {
           dump(
             jobs.map((j) => ({
               ...j,
               runAt: j.runAt.toISOString(),
-            }))
-          );
+            })),
+          )
         }
       }
 
-      return "success";
+      return 'success'
     },
-    [dump]
-  );
+    [dump],
+  )
 
   const connectActivityStream = useCallback(
     (instanceDetails: QuirrelInstanceDetails) => {
       function connect() {
-        const { baseUrl, token } = instanceDetails;
+        const { baseUrl, token } = instanceDetails
         function activityUrl(baseUrl: string) {
-          const url = new URL(baseUrl);
-          url.protocol = url.protocol === "https:" ? "wss:" : "ws:";
-          url.pathname = ensureEndsWithSlash(url.pathname);
-          return url.toString() + "activity";
+          const url = new URL(baseUrl)
+          url.protocol = url.protocol === 'https:' ? 'wss:' : 'ws:'
+          url.pathname = ensureEndsWithSlash(url.pathname)
+          return url.toString() + 'activity'
         }
 
-        const socket = new WebSocket(activityUrl(baseUrl), token || "ignored");
+        const socket = new WebSocket(activityUrl(baseUrl), token || 'ignored')
 
-        const VOLUNTARILY_CLOSED = "voluntarily_closed";
+        const VOLUNTARILY_CLOSED = 'voluntarily_closed'
 
         socket.onopen = () => {
-          connectedSocket.current?.close(1000, VOLUNTARILY_CLOSED);
-          connectedSocket.current = socket;
+          connectedSocket.current?.close(1000, VOLUNTARILY_CLOSED)
+          connectedSocket.current = socket
 
-          console.log("Connected successfully.");
-        };
+          console.log('Connected successfully.')
+        }
 
         socket.onclose = (ev) => {
-          console.log(`Socket to ${baseUrl} was closed.`);
+          console.log(`Socket to ${baseUrl} was closed.`)
 
           if (ev.reason === VOLUNTARILY_CLOSED) {
-            return;
+            return
           }
 
-          const isAbnormal = ev.code === 1006;
+          const isAbnormal = ev.code === 1006
           if (isAbnormal) {
-            console.log(`Reconnecting ...`);
-            connect();
+            console.log(`Reconnecting ...`)
+            connect()
           } else {
-            quirrelClient.connectionWasAborted();
+            quirrelClient.connectionWasAborted()
           }
-        };
+        }
 
         socket.onmessage = (evt) => {
-          const data = JSON.parse(evt.data);
-          onActivity({ type: data[0], payload: data[1], date: Date.now() });
-        };
+          const data = JSON.parse(evt.data)
+          onActivity({ type: data[0], payload: data[1], date: Date.now() })
+        }
       }
 
-      connect();
+      connect()
     },
-    [dump, connectedSocket, quirrelClient.connectionWasAborted, onActivity]
-  );
+    [dump, connectedSocket, quirrelClient.connectionWasAborted, onActivity],
+  )
 
   const connect = useCallback(
     async (instanceDetails: QuirrelInstanceDetails) => {
       const { isHealthy: _isHealthy, stopPolling } = await isHealthy(
-        instanceDetails.baseUrl
-      );
+        instanceDetails.baseUrl,
+      )
       if (stopPolling) {
-        return "stopPolling";
+        return 'stopPolling'
       }
       if (!_isHealthy) {
-        return "unhealthy";
+        return 'unhealthy'
       }
 
-      const getClient = quirrelClient.useInstance(instanceDetails);
+      const getClient = quirrelClient.useInstance(instanceDetails)
 
-      const result = await loadInitialJobs(getClient);
-      if (result === "unauthorized") {
+      const result = await loadInitialJobs(getClient)
+      if (result === 'unauthorized') {
         window.alert(
-          "Please authenticate with your QUIRREL_TOKEN via the top-left connection menu."
-        );
-        return "stopPolling";
+          'Please authenticate with your QUIRREL_TOKEN via the top-left connection menu.',
+        )
+        return 'stopPolling'
       }
-      connectActivityStream(instanceDetails);
-      return "success";
+      connectActivityStream(instanceDetails)
+      return 'success'
     },
-    [quirrelClient.useInstance, loadInitialJobs, connectActivityStream]
-  );
+    [quirrelClient.useInstance, loadInitialJobs, connectActivityStream],
+  )
 
   useEffect(() => {
     if (quirrelClient.isConnected) {
-      return;
+      return
     }
 
-    let intervalId: NodeJS.Timeout;
+    let intervalId: NodeJS.Timeout
 
     getConnectionDetailsFromHash().then((connDetails) => {
       intervalId = setInterval(async () => {
         const result = await connect(
           connDetails ?? {
-            baseUrl: config.fixedEndpoint ?? "http://localhost:9181",
-          }
-        );
+            baseUrl: config.fixedEndpoint ?? 'http://localhost:9181',
+          },
+        )
 
-        if (result === "stopPolling" || result === "success") {
-          clearInterval(intervalId);
+        if (result === 'stopPolling' || result === 'success') {
+          clearInterval(intervalId)
         }
-      }, 500);
-    });
+      }, 500)
+    })
 
-    return () => clearInterval(intervalId);
-  }, [quirrelClient.isConnected]);
+    return () => clearInterval(intervalId)
+  }, [quirrelClient.isConnected])
 
   return (
     <QuirrelCtx.Provider
@@ -527,5 +526,5 @@ export function QuirrelProvider(props: PropsWithChildren<{}>) {
         </BaseLayout>
       )}
     </QuirrelCtx.Provider>
-  );
+  )
 }

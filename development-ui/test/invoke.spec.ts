@@ -1,59 +1,60 @@
-import delay from "delay";
-import { runQuirrel } from "./runQuirrel";
-import { expect } from "chai";
-import { Page, test } from "@playwright/test";
+import { Page, test } from '@playwright/test'
+import { expect } from 'chai'
+import delay from 'delay'
 
-let cleanup: (() => Promise<void>)[] = [];
+import { runQuirrel } from './runQuirrel'
+
+let cleanup: (() => Promise<void>)[] = []
 
 test.beforeEach(() => {
-  cleanup = [];
-});
+  cleanup = []
+})
 
 test.afterEach(async () => {
-  await Promise.all(cleanup.map((clean) => clean()));
-});
+  await Promise.all(cleanup.map((clean) => clean()))
+})
 
 async function expectTableCellToEqual(
   row: number,
   column: number,
   value: string,
-  _page: Page
+  _page: Page,
 ) {
-  const rowEl = await _page.$(`//tr[${row}]`);
-  expect(rowEl).to.exist;
+  const rowEl = await _page.$(`//tr[${row}]`)
+  expect(rowEl).to.exist
   expect(
-    await (await _page.$(`//tr[${row}]/td[${column}]`))?.innerText()
-  ).to.equal(value);
+    await (await _page.$(`//tr[${row}]/td[${column}]`))?.innerText(),
+  ).to.equal(value)
 }
 
 async function expectTableToBeEmpty(_page: Page) {
-  const table = await _page.$(`tbody`);
-  expect(await table?.innerHTML()).to.equal("");
+  const table = await _page.$(`tbody`)
+  expect(await table?.innerHTML()).to.equal('')
 }
 
-test("allows invoking jobs", async ({ page }) => {
-  const quirrel = await runQuirrel();
-  cleanup.push(quirrel.cleanup);
+test('allows invoking jobs', async ({ page }) => {
+  const quirrel = await runQuirrel()
+  cleanup.push(quirrel.cleanup)
 
-  await page.goto("http://localhost:1234/pending");
+  await page.goto('http://localhost:1234/pending')
 
-  await delay(500);
+  await delay(500)
 
-  await expectTableToBeEmpty(page);
+  await expectTableToBeEmpty(page)
 
-  await quirrel.client.enqueue("1", { delay: "1min", id: "1" });
-  await quirrel.client.enqueue("2", { delay: "2min", id: "2" });
-  await quirrel.client.enqueue("3", { delay: "3min", id: "3" });
+  await quirrel.client.enqueue('1', { delay: '1min', id: '1' })
+  await quirrel.client.enqueue('2', { delay: '2min', id: '2' })
+  await quirrel.client.enqueue('3', { delay: '3min', id: '3' })
 
-  await delay(100);
+  await delay(100)
 
-  await expectTableCellToEqual(1, 2, "1", page);
-  await expectTableCellToEqual(2, 2, "2", page);
-  await expectTableCellToEqual(3, 2, "3", page);
+  await expectTableCellToEqual(1, 2, '1', page)
+  await expectTableCellToEqual(2, 2, '2', page)
+  await expectTableCellToEqual(3, 2, '3', page)
 
-  await page.click(`//tr[1]/td[5]/span/button[1]`);
+  await page.click(`//tr[1]/td[5]/span/button[1]`)
 
-  await delay(100);
+  await delay(100)
 
-  expect(quirrel.receivedJobs).to.contain("1");
-});
+  expect(quirrel.receivedJobs).to.contain('1')
+})

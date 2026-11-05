@@ -1,14 +1,15 @@
-import connect from "connect";
+import bodyParser from 'body-parser'
+import connect from 'connect'
+
 import {
   DefaultJobOptions,
+  EnqueueJobOptions,
+  EnqueueJobOpts,
+  Job,
   QuirrelClient,
   QuirrelJobHandler,
-  EnqueueJobOpts,
-  EnqueueJobOptions,
-  Job,
   QuirrelOptions,
-} from "./client";
-import bodyParser from "body-parser";
+} from './client'
 
 export {
   DefaultJobOptions,
@@ -16,14 +17,14 @@ export {
   EnqueueJobOpts,
   EnqueueJobOptions,
   Job,
-};
+}
 
 export type Queue<Payload> = connect.Server &
-  Omit<QuirrelClient<Payload>, "respondTo" | "makeRequest">;
+  Omit<QuirrelClient<Payload>, 'respondTo' | 'makeRequest'>
 
-declare module "connect" {
+declare module 'connect' {
   export interface IncomingMessage {
-    body: string;
+    body: string
   }
 }
 
@@ -36,44 +37,44 @@ export function Queue<Payload>(
     route,
     handler,
     options,
-  });
+  })
 
-  const server = connect() as Queue<Payload>;
+  const server = connect() as Queue<Payload>
 
-  server.use(bodyParser.text());
+  server.use(bodyParser.text())
   server.use(async (req, res, next) => {
-    if (req.url !== "/" + route) {
-      return next();
+    if (req.url !== '/' + route) {
+      return next()
     }
 
     const { body, status, headers } = await quirrel.respondTo(
       req.body,
-      req.headers as Record<string, string>
-    );
+      req.headers as Record<string, string>,
+    )
 
-    res.statusCode = status;
+    res.statusCode = status
     for (const [header, value] of Object.entries(headers)) {
-      res.setHeader(header, value);
+      res.setHeader(header, value)
     }
-    res.write(body);
-    res.end();
-  });
+    res.write(body)
+    res.end()
+  })
 
-  server.enqueue = (payload, options) => quirrel.enqueue(payload, options);
-  server.enqueueMany = (jobs) => quirrel.enqueueMany(jobs);
-  server.get = () => quirrel.get();
-  server.delete = (id) => quirrel.delete(id);
-  server.getById = (id) => quirrel.getById(id);
-  server.invoke = (id) => quirrel.invoke(id);
+  server.enqueue = (payload, options) => quirrel.enqueue(payload, options)
+  server.enqueueMany = (jobs) => quirrel.enqueueMany(jobs)
+  server.get = () => quirrel.get()
+  server.delete = (id) => quirrel.delete(id)
+  server.getById = (id) => quirrel.getById(id)
+  server.invoke = (id) => quirrel.invoke(id)
 
-  return server;
+  return server
 }
 
 export function CronJob(
   route: string,
-  cronSchedule: NonNullable<NonNullable<EnqueueJobOptions["repeat"]>["cron"]>,
+  cronSchedule: NonNullable<NonNullable<EnqueueJobOptions['repeat']>['cron']>,
   handler: () => Promise<void>,
-  options?: QuirrelOptions
+  options?: QuirrelOptions,
 ) {
-  return Queue(route, handler, options) as unknown;
+  return Queue(route, handler, options) as unknown
 }

@@ -3,22 +3,19 @@ title: Nuxt.js
 ---
 
 ```ts title="api/someQueue.js"
-import { Queue } from "quirrel/nuxt";
+import { Queue } from 'quirrel/nuxt'
 
-export default Queue(
-  "someQueue",
-  async (job, meta) => {
-    // do something
-  }
-);
+export default Queue('someQueue', async (job, meta) => {
+  // do something
+})
 ```
 
 ```js title="nuxt.config.js"
 export default {
   serverMiddleware: [
     // will register the queue with Nuxt
-    "~/api/someQueue.js",
-  ]
+    '~/api/someQueue.js',
+  ],
 }
 ```
 

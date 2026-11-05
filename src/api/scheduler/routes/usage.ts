@@ -1,34 +1,34 @@
-import { FastifyPluginCallback } from "fastify";
-import { UsageMeter } from "../../shared/usage-meter";
+import { FastifyPluginCallback } from 'fastify'
 
-import DELETEUsageResponseSchema from "../schemas/usage/DELETE/response.json";
-import { DELETEUsageResponse } from "../types/usage/DELETE/response";
+import { UsageMeter } from '../../shared/usage-meter'
+import DELETEUsageResponseSchema from '../schemas/usage/DELETE/response.json'
+import { DELETEUsageResponse } from '../types/usage/DELETE/response'
 
 const usageRoute: FastifyPluginCallback = (fastify, opts, done) => {
-  const usageMeter = new UsageMeter(fastify.redis);
+  const usageMeter = new UsageMeter(fastify.redis)
 
-  fastify.addHook("onRequest", fastify.basicAuth);
+  fastify.addHook('onRequest', fastify.basicAuth)
 
-  fastify.delete<{ Reply: DELETEUsageResponse }>("/", {
+  fastify.delete<{ Reply: DELETEUsageResponse }>('/', {
     schema: {
       response: {
         200: DELETEUsageResponseSchema,
       },
-      tags: ["Admin"],
-      summary: "Fetch & reset usage statistics",
+      tags: ['Admin'],
+      summary: 'Fetch & reset usage statistics',
       security: [
         {
-          "Admin": []
-        }
-      ]
+          Admin: [],
+        },
+      ],
     },
     async handler(request, reply) {
-      const usage = await usageMeter.readAndReset();
-      reply.status(200).send(usage);
+      const usage = await usageMeter.readAndReset()
+      reply.status(200).send(usage)
     },
-  });
+  })
 
-  done();
-};
+  done()
+}
 
-export default usageRoute;
+export default usageRoute

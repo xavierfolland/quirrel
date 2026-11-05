@@ -16,12 +16,12 @@ Then when a user uploads something, you insert it into the database and enqueue 
 
 ```ts
 // app/mutations/uploadCsvForProcessing
-import db from "db"
-import csvProcessingQueue from "app/api/process-csv"
+import csvProcessingQueue from 'app/api/process-csv'
+import db from 'db'
 
 export default async function uploadCsvForProcessing(data: string) {
   const record = await db.uploadedCsv.create({
-    data: {data},
+    data: { data },
   })
 
   await csvProcessingQueue.enqueue(record.id)
@@ -35,17 +35,17 @@ After that's done, it deletes the database record (alternative: add a flag calle
 
 ```ts
 // app/api/process-csv
-import db from "db"
-import {Queue} from "quirrel/blitz"
+import db from 'db'
+import { Queue } from 'quirrel/blitz'
 
-export default Queue("api/process-csv", async (uploadId: number) => {
+export default Queue('api/process-csv', async (uploadId: number) => {
   const upload = await db.uploadedCsv.findUnique({
-    where: {id: uploadId},
+    where: { id: uploadId },
   })
 
   await doYourProcessing(upload.data)
 
-  await db.uploadedCsv.delete({where: {id: uploadId}})
+  await db.uploadedCsv.delete({ where: { id: uploadId } })
 })
 ```
 
@@ -53,10 +53,10 @@ Now when you want to know whether an upload has already been processed, you can 
 
 ```ts
 // app/queries/hasFinishedProcessing
-import db from "db"
+import db from 'db'
 
 export default async function hasFinishedProcessing(uploadId: number) {
-  const count = await db.uploadedCsv.count({where: {uploadId}})
+  const count = await db.uploadedCsv.count({ where: { uploadId } })
   return count === 0
 }
 ```

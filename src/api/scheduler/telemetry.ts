@@ -1,26 +1,27 @@
-import { FastifyPluginCallback } from "fastify";
-import fp from "fastify-plugin";
-import { Telemetrist } from "../shared/telemetrist";
+import { FastifyPluginCallback } from 'fastify'
+import fp from 'fastify-plugin'
 
-declare module "fastify" {
+import { Telemetrist } from '../shared/telemetrist'
+
+declare module 'fastify' {
   interface FastifyInstance {
-    telemetrist?: Telemetrist;
+    telemetrist?: Telemetrist
   }
 }
 
 interface TelemetryPluginOptions {
-  runningInDocker: boolean;
+  runningInDocker: boolean
 }
 
 const telemetryPlugin: FastifyPluginCallback<TelemetryPluginOptions> = async (
   fastify,
-  opts
+  opts,
 ) => {
-  const telemetrist = new Telemetrist(opts.runningInDocker);
+  const telemetrist = new Telemetrist(opts.runningInDocker)
 
-  fastify.decorate("telemetrist", telemetrist);
-};
+  fastify.decorate('telemetrist', telemetrist)
+}
 
-export default (fp as any)(telemetryPlugin) as FastifyPluginCallback<
-  TelemetryPluginOptions
->;
+export default (fp as any)(
+  telemetryPlugin,
+) as FastifyPluginCallback<TelemetryPluginOptions>

@@ -1,198 +1,199 @@
-import { cronExpression, timezone } from "../client/index";
-import { cron } from "../client/index";
-import fs from "fs";
-import * as chokidar from "chokidar";
-import { parseChokidarRulesFromGitignore } from "./parse-gitignore";
-import * as babel from "@babel/parser";
-import traverse from "@babel/traverse";
-import path from "path";
-import * as config from "../client/config";
+import * as babel from '@babel/parser'
+import traverse from '@babel/traverse'
+import * as chokidar from 'chokidar'
+import fs from 'fs'
+import path from 'path'
+
+import * as config from '../client/config'
+import { timezone } from '../client/index'
+import { cron } from '../client/index'
+import { parseChokidarRulesFromGitignore } from './parse-gitignore'
 
 export interface DetectedCronJob {
-  route: string;
-  schedule: string;
-  timezone: string;
-  framework: string;
-  isValid: boolean;
+  route: string
+  schedule: string
+  timezone: string
+  framework: string
+  isValid: boolean
 }
 
 export function detectQuirrelCronJob(file: string): DetectedCronJob | null {
-  const quirrelImport = /["']quirrel\/(.*)["']/.exec(file);
+  const quirrelImport = /["']quirrel\/(.*)["']/.exec(file)
   if (!quirrelImport) {
-    return null;
+    return null
   }
 
-  const clientFramework = quirrelImport[1];
+  const clientFramework = quirrelImport[1]
 
-  let jobName: string | undefined;
-  let cronSchedule: string | undefined;
-  let cronTimezone: string | undefined;
+  let jobName: string | undefined
+  let cronSchedule: string | undefined
+  let cronTimezone: string | undefined
 
   try {
     const ast = babel.parse(file, {
-      sourceType: "unambiguous",
-      plugins: ["typescript"],
-    });
+      sourceType: 'unambiguous',
+      plugins: ['typescript'],
+    })
     traverse(ast, {
       CallExpression(path) {
-        const { callee } = path.node;
-        if (callee.type !== "Identifier" || callee.name !== "CronJob") {
-          return;
+        const { callee } = path.node
+        if (callee.type !== 'Identifier' || callee.name !== 'CronJob') {
+          return
         }
 
         if (path.node.arguments.length < 3) {
-          return;
+          return
         }
 
-        const [jobNameNode, cronScheduleNode] = path.node.arguments;
-        if (jobNameNode.type !== "StringLiteral") {
-          return;
+        const [jobNameNode, cronScheduleNode] = path.node.arguments
+        if (jobNameNode.type !== 'StringLiteral') {
+          return
         }
 
-        jobName = jobNameNode.value;
+        jobName = jobNameNode.value
 
-        if (cronScheduleNode.type === "StringLiteral") {
-          cronSchedule = cronScheduleNode.value;
-        } else if (cronScheduleNode.type === "ArrayExpression") {
+        if (cronScheduleNode.type === 'StringLiteral') {
+          cronSchedule = cronScheduleNode.value
+        } else if (cronScheduleNode.type === 'ArrayExpression') {
           if (cronScheduleNode.elements.length > 2) {
-            return;
+            return
           }
 
-          const [scheduleNode, timezoneNode] = cronScheduleNode.elements;
-          if (scheduleNode?.type !== "StringLiteral") {
-            return;
+          const [scheduleNode, timezoneNode] = cronScheduleNode.elements
+          if (scheduleNode?.type !== 'StringLiteral') {
+            return
           }
 
-          cronSchedule = scheduleNode.value;
+          cronSchedule = scheduleNode.value
 
-          if (timezoneNode?.type !== "StringLiteral") {
-            return;
+          if (timezoneNode?.type !== 'StringLiteral') {
+            return
           }
 
-          cronTimezone = timezoneNode.value;
+          cronTimezone = timezoneNode.value
         }
 
-        path.stop();
+        path.stop()
       },
-    });
+    })
 
     if (!cronSchedule || !jobName) {
-      return null;
+      return null
     }
 
     return {
       route: config.withoutLeadingSlash(jobName),
       schedule: cronSchedule,
-      timezone: cronTimezone ?? "Etc/UTC",
+      timezone: cronTimezone ?? 'Etc/UTC',
       framework: clientFramework,
       isValid:
         cron.safeParse(cronSchedule).success &&
         timezone.optional().safeParse(cronTimezone).success,
-    };
+    }
   } catch (error) {
-    return null;
+    return null
   }
 }
 
 export class CronDetector {
-  private watcher: chokidar.FSWatcher;
-  private ready = false;
+  private watcher: chokidar.FSWatcher
+  private ready = false
 
   constructor(
     private readonly cwd: string,
-    private readonly onChange?: (jobs: DetectedCronJob[]) => void
+    private readonly onChange?: (jobs: DetectedCronJob[]) => void,
   ) {
-    const rules = parseChokidarRulesFromGitignore(cwd);
-    this.watcher = chokidar.watch(["**/*.[jt]s", "**/*.[jt]sx"], {
-      ignored: ["node_modules", "**/node_modules", ...rules.ignoredPaths],
+    const rules = parseChokidarRulesFromGitignore(cwd)
+    this.watcher = chokidar.watch(['**/*.[jt]s', '**/*.[jt]sx'], {
+      ignored: ['node_modules', '**/node_modules', ...rules.ignoredPaths],
       cwd,
-    });
+    })
 
-    this.watcher.on("add", this.on("added"));
-    this.watcher.on("change", this.on("changed"));
-    this.watcher.on("unlink", this.on("deleted"));
-    this.watcher.on("ready", () => {
-      this.ready = true;
-    });
+    this.watcher.on('add', this.on('added'))
+    this.watcher.on('change', this.on('changed'))
+    this.watcher.on('unlink', this.on('deleted'))
+    this.watcher.on('ready', () => {
+      this.ready = true
+    })
   }
 
   public async close() {
-    await this.watcher.close();
+    await this.watcher.close()
   }
 
   public async awaitReady() {
     if (this.ready) {
-      return;
+      return
     }
 
     await new Promise((resolve) => {
-      this.watcher.on("ready", resolve);
-    });
+      this.watcher.on('ready', resolve)
+    })
   }
 
-  private pathToCronJob: Record<string, DetectedCronJob> = {};
+  private pathToCronJob: Record<string, DetectedCronJob> = {}
 
   public getDetectedJobs(): DetectedCronJob[] {
-    return Object.values(this.pathToCronJob);
+    return Object.values(this.pathToCronJob)
   }
 
   private async onNewJob(job: DetectedCronJob, filePath: string) {
-    await this.onJobChanged(job, filePath);
+    await this.onJobChanged(job, filePath)
   }
 
   private emitChange() {
-    this.onChange?.(this.getDetectedJobs());
+    this.onChange?.(this.getDetectedJobs())
   }
 
   private async onJobRemoved(job: DetectedCronJob, filePath: string) {
-    delete this.pathToCronJob[filePath];
+    delete this.pathToCronJob[filePath]
 
-    this.emitChange();
+    this.emitChange()
   }
 
   private async onJobChanged(job: DetectedCronJob, filePath: string) {
-    this.pathToCronJob[filePath] = job;
+    this.pathToCronJob[filePath] = job
 
-    this.emitChange();
+    this.emitChange()
   }
 
-  private on(fileChangeType: "changed" | "deleted" | "added") {
+  private on(fileChangeType: 'changed' | 'deleted' | 'added') {
     return async (filePath: string) => {
-      const previousJob = this.pathToCronJob[filePath];
+      const previousJob = this.pathToCronJob[filePath]
 
-      if (fileChangeType === "deleted") {
+      if (fileChangeType === 'deleted') {
         if (previousJob) {
-          await this.onJobRemoved(previousJob, filePath);
+          await this.onJobRemoved(previousJob, filePath)
         }
 
-        return;
+        return
       }
 
-      const contents = fs.readFileSync(path.join(this.cwd, filePath), "utf-8");
-      const newJob = detectQuirrelCronJob(contents);
+      const contents = fs.readFileSync(path.join(this.cwd, filePath), 'utf-8')
+      const newJob = detectQuirrelCronJob(contents)
 
       if (!newJob) {
         if (previousJob) {
-          await this.onJobRemoved(previousJob, filePath);
+          await this.onJobRemoved(previousJob, filePath)
         }
 
-        return;
+        return
       }
 
       if (!newJob.isValid) {
         console.error(
-          `🚨Encountered invalid cron expression: ${newJob.schedule}`
-        );
-        return;
+          `🚨Encountered invalid cron expression: ${newJob.schedule}`,
+        )
+        return
       }
 
       if (!previousJob && newJob) {
-        return await this.onNewJob(newJob, filePath);
+        return await this.onNewJob(newJob, filePath)
       }
 
       if (previousJob && newJob) {
-        return await this.onJobChanged(newJob, filePath);
+        return await this.onJobChanged(newJob, filePath)
       }
-    };
+    }
   }
 }

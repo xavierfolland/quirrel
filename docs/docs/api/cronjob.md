@@ -5,15 +5,15 @@ title: CronJob
 CronJobs are specified very similar to Queues:
 
 ```ts title="pages/api/someCronJob.ts"
-import { CronJob } from "quirrel/next";
+import { CronJob } from 'quirrel/next'
 
 export default CronJob(
-  "api/someCronJob", // the route that it's reachable on
-  ["0 2 * * *", "Europe/Berlin"], // every day at 2AM, in Berlin time. you can also write @weekly or @daily!
+  'api/someCronJob', // the route that it's reachable on
+  ['0 2 * * *', 'Europe/Berlin'], // every day at 2AM, in Berlin time. you can also write @weekly or @daily!
   async (job) => {
     // do something
-  }
-);
+  },
+)
 ```
 
 :::note 🚨 Other Frameworks 🚨

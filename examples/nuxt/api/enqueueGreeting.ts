@@ -1,19 +1,20 @@
-import greetingsQueue from "./greetingsQueue";
-import express from "express";
-import bodyParser from "body-parser";
+import bodyParser from 'body-parser'
+import express from 'express'
 
-const handler = express();
+import greetingsQueue from './greetingsQueue'
 
-handler.use(bodyParser.text());
+const handler = express()
+
+handler.use(bodyParser.text())
 handler.use(async (req, res) => {
   await greetingsQueue.enqueue(req.body, {
-    delay: "1d"
-  });
+    delay: '1d',
+  })
 
-  res.end();
-});
+  res.end()
+})
 
 export default {
-  path: "/api/enqueueGreeting",
-  handler
-};
+  path: '/api/enqueueGreeting',
+  handler,
+}

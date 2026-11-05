@@ -1,38 +1,39 @@
-import { QuirrelConfig, runQuirrel } from "../../api";
-import IORedis from "ioredis";
-import { createRedisFactory } from "../../api/shared/create-redis";
-import { CronDetector } from "../cron-detector";
-import { Command } from "commander";
-import { getApplicationBaseUrl } from "../../client/config";
+import { Command } from 'commander'
+import IORedis from 'ioredis'
+
+import { QuirrelConfig, runQuirrel } from '../../api'
+import { createRedisFactory } from '../../api/shared/create-redis'
+import { getApplicationBaseUrl } from '../../client/config'
+import { CronDetector } from '../cron-detector'
 
 function requireFrameworkClientForDevelopmentDefaults(framework: string) {
-  require(`../../${framework}`);
+  require(`../../${framework}`)
 }
 
 async function isRedisConnectionIntact(redisUrl: string) {
   try {
-    const client = new IORedis(redisUrl);
-    await client.ping();
-    return true;
+    const client = new IORedis(redisUrl)
+    await client.ping()
+    return true
   } catch (error) {
-    return false;
+    return false
   }
 }
 
 function collect(value: string, previous: string[] = []) {
-  return previous.concat([value]);
+  return previous.concat([value])
 }
 
 export async function runQuirrelDev(
-  config: Omit<QuirrelConfig, "redisFactory"> & {
-    redisUrl?: string;
-    cronCwd?: string;
-  }
+  config: Omit<QuirrelConfig, 'redisFactory'> & {
+    redisUrl?: string
+    cronCwd?: string
+  },
 ) {
-  const { redisUrl, cronCwd } = config;
+  const { redisUrl, cronCwd } = config
   if (redisUrl) {
     if (!(await isRedisConnectionIntact(redisUrl))) {
-      throw new Error("Couldn't connect to Redis.");
+      throw new Error("Couldn't connect to Redis.")
     }
   }
 
@@ -44,42 +45,42 @@ export async function runQuirrelDev(
         path: process.env.REDIS_TLS_CA_FILE,
       },
     }),
-  });
+  })
 
-  let cronDetector: CronDetector | undefined;
+  let cronDetector: CronDetector | undefined
 
   if (cronCwd) {
     cronDetector = new CronDetector(cronCwd, async (jobs) => {
-      const firstJob = jobs[0];
+      const firstJob = jobs[0]
       if (firstJob) {
-        requireFrameworkClientForDevelopmentDefaults(firstJob.framework);
+        requireFrameworkClientForDevelopmentDefaults(firstJob.framework)
       }
 
-      await quirrel.server.app.jobs.updateCron("anonymous", {
+      await quirrel.server.app.jobs.updateCron('anonymous', {
         baseUrl: getApplicationBaseUrl(config.host),
         crons: jobs,
-      });
-    });
-    await cronDetector.awaitReady();
+      })
+    })
+    await cronDetector.awaitReady()
   }
 
   return async () => {
-    await quirrel.close();
-    await cronDetector?.close();
-  };
+    await quirrel.close()
+    await cronDetector?.close()
+  }
 }
 
 export default function registerRun(program: Command) {
   program
-    .option("-h, --host <host>", "host to bind on", "localhost")
-    .option("-p, --port <port>", "port to bind on", "9181")
-    .option("-r, --redis-url <redis-url>", "enables the redis backend")
-    .option("-q, --quiet", "silences welcome message, condenses output", false)
-    .option("--no-cron", "Disable cron job detection")
+    .option('-h, --host <host>', 'host to bind on', 'localhost')
+    .option('-p, --port <port>', 'port to bind on', '9181')
+    .option('-r, --redis-url <redis-url>', 'enables the redis backend')
+    .option('-q, --quiet', 'silences welcome message, condenses output', false)
+    .option('--no-cron', 'Disable cron job detection')
     .option(
-      "--passphrase <passphrase>",
-      "secure the server with a passphrase",
-      collect
+      '--passphrase <passphrase>',
+      'secure the server with a passphrase',
+      collect,
     )
     .action(
       async ({
@@ -90,12 +91,12 @@ export default function registerRun(program: Command) {
         cron,
         quiet,
       }: {
-        redisUrl?: string;
-        passphrase: string[];
-        host: string;
-        port: string;
-        cron: boolean;
-        quiet: boolean;
+        redisUrl?: string
+        passphrase: string[]
+        host: string
+        port: string
+        cron: boolean
+        quiet: boolean
       }) => {
         const exit = await runQuirrelDev({
           redisUrl,
@@ -104,13 +105,13 @@ export default function registerRun(program: Command) {
           host,
           port: Number(port),
           disableTelemetry: Boolean(process.env.DISABLE_TELEMETRY),
-          logger: quiet ? "quiet" : "dx",
-        });
+          logger: quiet ? 'quiet' : 'dx',
+        })
 
-        process.on("SIGINT", async () => {
-          await exit();
-          process.exit();
-        });
-      }
-    );
+        process.on('SIGINT', async () => {
+          await exit()
+          process.exit()
+        })
+      },
+    )
 }

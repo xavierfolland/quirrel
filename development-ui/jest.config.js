@@ -1,17 +1,22 @@
 module.exports = {
-  preset: "jest-playwright-preset",
+  preset: 'jest-playwright-preset',
   transform: {
-    "^.+\\.ts$": "ts-jest",
+    '^.+\\.ts$': 'ts-jest',
   },
   testEnvironmentOptions: {
-    "jest-playwright": {
+    'jest-playwright': {
       collectCoverage: true,
     },
   },
-  watchPathIgnorePatterns: ["node_modules", ".nyc_output", "dist", ".parcel-cache"],
+  watchPathIgnorePatterns: [
+    'node_modules',
+    '.nyc_output',
+    'dist',
+    '.parcel-cache',
+  ],
   globals: {
-    "ts-jest": {
-      tsconfig: "tsconfig.test.json",
+    'ts-jest': {
+      tsconfig: 'tsconfig.test.json',
     },
   },
-};
+}

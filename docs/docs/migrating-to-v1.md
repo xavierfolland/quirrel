@@ -38,4 +38,3 @@ To migrate your project to v1, follow these steps:
    )
    ```
 1. Optional: Transition your self-made cron jobs to Quirrel's new [`CronJob()`](/api/cronjob)
-

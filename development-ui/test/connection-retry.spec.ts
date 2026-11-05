@@ -1,46 +1,47 @@
-import delay from "delay";
-import { expect } from "chai";
-import { runQuirrel } from "./runQuirrel";
-import { Page, test } from "@playwright/test";
+import { Page, test } from '@playwright/test'
+import { expect } from 'chai'
+import delay from 'delay'
 
-let cleanup: (() => Promise<void>)[] = [];
+import { runQuirrel } from './runQuirrel'
+
+let cleanup: (() => Promise<void>)[] = []
 
 test.beforeEach(() => {
-  cleanup = [];
-});
+  cleanup = []
+})
 
 test.afterEach(async () => {
-  await Promise.all(cleanup.map((clean) => clean()));
-});
+  await Promise.all(cleanup.map((clean) => clean()))
+})
 
 async function expectToShowAttachingToQuirrel(page: Page) {
-  const attachingEl = await page.$("#attaching-to-quirrel");
-  expect(attachingEl).to.exist;
-  expect(await attachingEl?.innerText()).to.equal("Attaching to Quirrel ...");
+  const attachingEl = await page.$('#attaching-to-quirrel')
+  expect(attachingEl).to.exist
+  expect(await attachingEl?.innerText()).to.equal('Attaching to Quirrel ...')
 }
 
 async function expectToShowJobTable(page: Page) {
-  const tableEl = await page.$("[data-test-class=table]");
-  expect(tableEl).to.exist;
+  const tableEl = await page.$('[data-test-class=table]')
+  expect(tableEl).to.exist
   expect(await tableEl?.textContent()).to.equal(
-    ["Endpoint", "ID", "Run At", "Payload"].join("")
-  );
+    ['Endpoint', 'ID', 'Run At', 'Payload'].join(''),
+  )
 }
 
-test("automatically connects when Quirrel is started", async ({ page }) => {
-  await page.goto("http://localhost:1234/pending");
+test('automatically connects when Quirrel is started', async ({ page }) => {
+  await page.goto('http://localhost:1234/pending')
 
-  await expectToShowAttachingToQuirrel(page);
+  await expectToShowAttachingToQuirrel(page)
 
-  const quirrelServer = await runQuirrel();
+  const quirrelServer = await runQuirrel()
 
-  cleanup.push(quirrelServer.cleanup);
+  cleanup.push(quirrelServer.cleanup)
 
-  await delay(550);
+  await delay(550)
 
-  await expectToShowJobTable(page);
+  await expectToShowJobTable(page)
 
-  await quirrelServer.cleanup();
+  await quirrelServer.cleanup()
 
-  await expectToShowAttachingToQuirrel(page);
-});
+  await expectToShowAttachingToQuirrel(page)
+})

@@ -3,17 +3,14 @@ title: Express / Connect
 ---
 
 ```ts
-import { Queue } from "quirrel/connect";
-import Express from "express";
+import Express from 'express'
+import { Queue } from 'quirrel/connect'
 
 const app = Express()
 
-const someQueue = Queue(
-  "someQueue",
-  async (job, meta) => {
-    // do something
-  }
-)
+const someQueue = Queue('someQueue', async (job, meta) => {
+  // do something
+})
 
 app.use(someQueue)
 

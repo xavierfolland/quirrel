@@ -13,6 +13,9 @@
       "description": "The job's ID"
     }
   },
-  "required": ["endpoint", "id"],
+  "required": [
+    "endpoint",
+    "id"
+  ],
   "additionalProperties": false
 }

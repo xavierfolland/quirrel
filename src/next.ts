@@ -1,1 +1,1 @@
-export * from "./next-pages";
+export * from './next-pages'

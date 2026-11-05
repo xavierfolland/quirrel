@@ -1,62 +1,63 @@
-import { QuirrelClient, runQuirrel as _runQuirrel } from "../../";
-import IORedis from "ioredis-mock";
-import http from "http";
+import http from 'http'
+import IORedis from 'ioredis-mock'
+
+import { QuirrelClient, runQuirrel as _runQuirrel } from '../../'
 
 function getRandomPort() {
-  return 3000 + Math.floor(Math.random() * 1000);
+  return 3000 + Math.floor(Math.random() * 1000)
 }
 
 export async function runQuirrel({ port = 9181 }: { port?: number } = {}) {
   const ioredis = new IORedis({
     port: getRandomPort(),
-  });
+  })
   const quirrelServer = await _runQuirrel({
-    host: "localhost",
+    host: 'localhost',
     port,
-    logger: "none",
+    logger: 'none',
     redisFactory: () => {
-      return ioredis.duplicate() as any;
+      return ioredis.duplicate() as any
     },
-  });
+  })
 
-  const receivedJobs: string[] = [];
+  const receivedJobs: string[] = []
 
   const client = new QuirrelClient<string>({
     async handler(payload) {
-      receivedJobs.push(payload);
+      receivedJobs.push(payload)
     },
-    route: "",
+    route: '',
     config: {
-      applicationBaseUrl: "http://localhost:6000",
-      quirrelBaseUrl: "http://localhost:" + port,
+      applicationBaseUrl: 'http://localhost:6000',
+      quirrelBaseUrl: 'http://localhost:' + port,
     },
-  });
+  })
 
   const receiver = http
     .createServer((req, res) => {
-      let body = "";
-      req.on("data", (data) => {
-        body += data;
-      });
+      let body = ''
+      req.on('data', (data) => {
+        body += data
+      })
 
-      req.on("end", async () => {
-        const response = await client.respondTo(body, req.headers);
-        res.statusCode = response.status;
+      req.on('end', async () => {
+        const response = await client.respondTo(body, req.headers)
+        res.statusCode = response.status
         for (const [name, value] of Object.entries(response.headers)) {
-          res.setHeader(name, value);
+          res.setHeader(name, value)
         }
-        res.write(body);
-        res.end();
-      });
+        res.write(body)
+        res.end()
+      })
     })
-    .listen(6000);
+    .listen(6000)
 
   return {
     client,
     receivedJobs,
     async cleanup() {
-      await quirrelServer.close();
-      receiver.close();
+      await quirrelServer.close()
+      receiver.close()
     },
-  };
+  }
 }

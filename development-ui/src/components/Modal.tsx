@@ -1,16 +1,16 @@
-import { PropsWithChildren } from "react";
-import { Transition } from "@tailwindui/react";
+import { Transition } from '@tailwindui/react'
+import { PropsWithChildren } from 'react'
 
 interface ModalProps {
-  show: boolean;
-  onRequestClose: () => void;
+  show: boolean
+  onRequestClose: () => void
 }
 
 export function Modal(props: PropsWithChildren<ModalProps>) {
   return (
     <div
       className={`fixed z-10 inset-0 overflow-y-auto ${
-        props.show ? "" : "pointer-events-none"
+        props.show ? '' : 'pointer-events-none'
       }`}
     >
       <div className="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
@@ -51,5 +51,5 @@ export function Modal(props: PropsWithChildren<ModalProps>) {
         </Transition>
       </div>
     </div>
-  );
+  )
 }

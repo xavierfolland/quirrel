@@ -1,3 +1,3 @@
-import greetingsQueue from "~/queues/greetings.server";
+import greetingsQueue from '~/queues/greetings.server'
 
-export const action = greetingsQueue;
+export const action = greetingsQueue

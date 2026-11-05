@@ -1,32 +1,32 @@
-import { FastifyPluginCallback } from "fastify";
-import fp from "fastify-plugin";
-import { PostHog } from "posthog-node";
+import { FastifyPluginCallback } from 'fastify'
+import fp from 'fastify-plugin'
+import { PostHog } from 'posthog-node'
 
-declare module "fastify" {
+declare module 'fastify' {
   interface FastifyInstance {
-    postHog?: PostHog;
+    postHog?: PostHog
   }
 }
 
 interface PostHogPluginOpts {
-  apiKey: string;
+  apiKey: string
 }
 
 const posthogPlugin: FastifyPluginCallback<PostHogPluginOpts> = async (
   fastify,
-  opts
+  opts,
 ) => {
   const postHog = new PostHog(opts.apiKey, {
-    host: "https://app.posthog.com",
-  });
+    host: 'https://app.posthog.com',
+  })
 
-  fastify.decorate("postHog", postHog);
+  fastify.decorate('postHog', postHog)
 
-  fastify.addHook("onClose", () => {
-    postHog.shutdown();
-  });
-};
+  fastify.addHook('onClose', () => {
+    postHog.shutdown()
+  })
+}
 
 export default (fp as any)(
-  posthogPlugin
-) as FastifyPluginCallback<PostHogPluginOpts>;
+  posthogPlugin,
+) as FastifyPluginCallback<PostHogPluginOpts>

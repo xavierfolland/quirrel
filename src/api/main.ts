@@ -1,7 +1,8 @@
-require("./shared/tracer")("quirrel");
-import { runQuirrel } from ".";
-import { cliWithConfig } from "../shared/cliWithConfig";
-import { createRedisFactory } from "./shared/create-redis";
+import { runQuirrel } from '.'
+import { cliWithConfig } from '../shared/cliWithConfig'
+import { createRedisFactory } from './shared/create-redis'
+
+require('./shared/tracer')('quirrel')
 
 cliWithConfig(async (config) => {
   const {
@@ -18,7 +19,7 @@ cliWithConfig(async (config) => {
     ENABLE_SSRF_PREVENTION,
     JWT_PUBLIC_KEY,
     POSTHOG_API_KEY,
-  } = config;
+  } = config
 
   const quirrel = await runQuirrel({
     port: +PORT,
@@ -29,11 +30,11 @@ cliWithConfig(async (config) => {
         path: REDIS_TLS_CA_FILE,
       },
     }),
-    passphrases: !!PASSPHRASES ? PASSPHRASES.split(":") : undefined,
+    passphrases: !!PASSPHRASES ? PASSPHRASES.split(':') : undefined,
     jwtPublicKey: JWT_PUBLIC_KEY,
     runningInDocker: Boolean(RUNNING_IN_DOCKER),
     disableTelemetry: Boolean(DISABLE_TELEMETRY),
-    logger: "structured",
+    logger: 'structured',
     enableSSRFPrevention: !!ENABLE_SSRF_PREVENTION,
     postHogApiKey: POSTHOG_API_KEY,
     incidentReceiver: INCIDENT_RECEIVER_ENDPOINT
@@ -42,9 +43,9 @@ cliWithConfig(async (config) => {
           passphrase: INCIDENT_RECEIVER_PASSPHRASE!,
         }
       : undefined,
-  });
+  })
 
   return {
     teardown: quirrel.close,
-  };
-});
+  }
+})

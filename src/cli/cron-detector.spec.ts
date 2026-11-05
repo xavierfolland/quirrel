@@ -1,4 +1,4 @@
-import { detectQuirrelCronJob } from "./cron-detector";
+import { detectQuirrelCronJob } from './cron-detector'
 
 const cases: Record<
   string,
@@ -16,11 +16,11 @@ export default CronJob(
 )
     `,
     output: {
-      framework: "blitz",
+      framework: 'blitz',
       isValid: true,
-      route: "api/hourlyCron",
-      schedule: "@hourly",
-      timezone: "Etc/UTC",
+      route: 'api/hourlyCron',
+      schedule: '@hourly',
+      timezone: 'Etc/UTC',
     },
   },
   timezone: {
@@ -35,11 +35,11 @@ export default CronJob(
 )
     `,
     output: {
-      framework: "blitz",
+      framework: 'blitz',
       isValid: true,
-      route: "api/bigBen",
-      schedule: "*/30 * * * *",
-      timezone: "Europe/London",
+      route: 'api/bigBen',
+      schedule: '*/30 * * * *',
+      timezone: 'Europe/London',
     },
   },
   nonExistantTimezone: {
@@ -52,14 +52,14 @@ export default CronJob(
 )
     `,
     output: {
-      framework: "blitz",
+      framework: 'blitz',
       isValid: false,
-      route: "api/hourlyCron",
-      schedule: "@hourly",
-      timezone: "Europe/NonExistant",
+      route: 'api/hourlyCron',
+      schedule: '@hourly',
+      timezone: 'Europe/NonExistant',
     },
   },
-  "with comments": {
+  'with comments': {
     input: `
 import { CronJob } from "quirrel/blitz"
 export default CronJob(
@@ -71,14 +71,14 @@ export default CronJob(
 )
     `,
     output: {
-      framework: "blitz",
+      framework: 'blitz',
       isValid: true,
-      route: "api/hourlyCron",
-      schedule: "@hourly",
-      timezone: "Etc/UTC",
+      route: 'api/hourlyCron',
+      schedule: '@hourly',
+      timezone: 'Etc/UTC',
     },
   },
-  "with block comments": {
+  'with block comments': {
     input: `
 import { CronJob } from "quirrel/blitz"
 export default CronJob(
@@ -90,25 +90,25 @@ export default CronJob(
 )
     `,
     output: {
-      framework: "blitz",
+      framework: 'blitz',
       isValid: true,
-      route: "api/hourlyCron",
-      schedule: "@hourly",
-      timezone: "Etc/UTC",
+      route: 'api/hourlyCron',
+      schedule: '@hourly',
+      timezone: 'Etc/UTC',
     },
   },
-  "repro tarshan": {
+  'repro tarshan': {
     input: `
 import { CronJob } from 'quirrel/redwood'
 
 export const handler = CronJob('admin-report-email-task-daily', '0 15 * * *', async () => {})
     `,
     output: {
-      framework: "redwood",
+      framework: 'redwood',
       isValid: true,
-      route: "admin-report-email-task-daily",
-      schedule: "0 15 * * *",
-      timezone: "Etc/UTC",
+      route: 'admin-report-email-task-daily',
+      schedule: '0 15 * * *',
+      timezone: 'Etc/UTC',
     },
   },
   arguments: {
@@ -118,24 +118,24 @@ import { CronJob } from 'quirrel/redwood'
 export const handler = CronJob('admin-report-email-task-daily', '0 15 * * *', async (name: string) => {})
     `,
     output: {
-      framework: "redwood",
+      framework: 'redwood',
       isValid: true,
-      route: "admin-report-email-task-daily",
-      schedule: "0 15 * * *",
-      timezone: "Etc/UTC",
+      route: 'admin-report-email-task-daily',
+      schedule: '0 15 * * *',
+      timezone: 'Etc/UTC',
     },
   },
 
-  "syntax errors": {
+  'syntax errors': {
     input: `import {} from "quirrel/next"; { ( } }`,
     output: null,
   },
-};
+}
 
-describe("detectQuirrelCronJob", () => {
+describe('detectQuirrelCronJob', () => {
   Object.entries(cases).forEach(([name, { input, output }]) => {
     test(name, () => {
-      expect(detectQuirrelCronJob(input)).toEqual(output);
-    });
-  });
-});
+      expect(detectQuirrelCronJob(input)).toEqual(output)
+    })
+  })
+})

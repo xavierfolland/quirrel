@@ -1,17 +1,18 @@
-import { FastifyPluginCallback } from "fastify";
-import fp from "fastify-plugin";
-import { TokenRepo } from "../shared/token-repo";
+import { FastifyPluginCallback } from 'fastify'
+import fp from 'fastify-plugin'
 
-declare module "fastify" {
+import { TokenRepo } from '../shared/token-repo'
+
+declare module 'fastify' {
   interface FastifyInstance {
-    tokens?: TokenRepo;
+    tokens?: TokenRepo
   }
 }
 
 const tokensPlugin: FastifyPluginCallback = async (fastify) => {
-  const tokenRepo = new TokenRepo(fastify.redis);
+  const tokenRepo = new TokenRepo(fastify.redis)
 
-  fastify.decorate("tokens", tokenRepo);
-};
+  fastify.decorate('tokens', tokenRepo)
+}
 
-export default (fp as any)(tokensPlugin) as FastifyPluginCallback;
+export default (fp as any)(tokensPlugin) as FastifyPluginCallback

@@ -1,7 +1,8 @@
-import { run } from "./runQuirrel";
-import type http from "http";
-import request from "supertest";
-import jwt from "jsonwebtoken";
+import type http from 'http'
+import jwt from 'jsonwebtoken'
+import request from 'supertest'
+
+import { run } from './runQuirrel'
 
 const privateKey = `
 -----BEGIN RSA PRIVATE KEY-----
@@ -31,7 +32,7 @@ NvVi5vcba9oGdElJX3e9mxqUKMrw7msJJv1MX8LWyMQC5L6YNYHDfbPF1q5L4i8j
 y18Ae9n7dHVueyslrb6weq7dTkYDi3iOYRW8HRkIQh06wEdbxt0shTzAJvvCQfrB
 jg/3747WSsf/zBTcHihTRBdAv6OmdhV4/dD5YBfLAkLrd+mX7iE=
 -----END RSA PRIVATE KEY-----
-`;
+`
 
 const publicKey = `
 -----BEGIN PUBLIC KEY-----
@@ -43,56 +44,56 @@ e+lf4s4OxQawWD79J9/5d3Ry0vbV3Am1FtGJiJvOwRsIfVChDpYStTcHTCMqtvWb
 V6L11BWkpzGXSW4Hv43qa+GSYOD2QU68Mb59oSk2OB+BtOLpJofmbGEGgvmwyCI9
 MwIDAQAB
 -----END PUBLIC KEY-----
-`;
+`
 
-describe("JWT Authentication", () => {
-  let quirrel: http.Server;
-  let teardown: () => Promise<void>;
+describe('JWT Authentication', () => {
+  let quirrel: http.Server
+  let teardown: () => Promise<void>
 
   beforeAll(async () => {
-    const res = await run("Mock", {
-      passphrases: ["root"],
+    const res = await run('Mock', {
+      passphrases: ['root'],
       jwtPublicKey: publicKey,
-    });
-    quirrel = res.server;
-    teardown = res.teardown;
-  });
+    })
+    quirrel = res.server
+    teardown = res.teardown
+  })
 
   afterAll(async () => {
-    await teardown();
-  });
+    await teardown()
+  })
 
-  describe("when using a freshly signed token", () => {
-    it("allows & increments usage", async () => {
+  describe('when using a freshly signed token', () => {
+    it('allows & increments usage', async () => {
       const validToken = jwt.sign({}, Buffer.from(privateKey), {
-        subject: "jason web token",
-        algorithm: "RS512",
-      });
+        subject: 'jason web token',
+        algorithm: 'RS512',
+      })
 
       await request(quirrel)
-        .get("/queues")
-        .auth(validToken, { type: "bearer" })
-        .expect(200);
+        .get('/queues')
+        .auth(validToken, { type: 'bearer' })
+        .expect(200)
 
       await request(quirrel)
-        .delete("/usage")
-        .auth("ignored", "root")
-        .expect(200, { "jason web token": 1 });
-    });
-  });
+        .delete('/usage')
+        .auth('ignored', 'root')
+        .expect(200, { 'jason web token': 1 })
+    })
+  })
 
-  describe("when using an invalid token", () => {
-    it("blocks", async () => {
+  describe('when using an invalid token', () => {
+    it('blocks', async () => {
       const invalidToken = jwt.sign({}, Buffer.from(privateKey), {
-        subject: "jason web token",
-        notBefore: "1d",
-        algorithm: "RS512",
-      });
+        subject: 'jason web token',
+        notBefore: '1d',
+        algorithm: 'RS512',
+      })
 
       await request(quirrel)
-        .get("/queues")
-        .auth(invalidToken, { type: "bearer" })
-        .expect(401);
-    });
-  });
-});
+        .get('/queues')
+        .auth(invalidToken, { type: 'bearer' })
+        .expect(401)
+    })
+  })
+})

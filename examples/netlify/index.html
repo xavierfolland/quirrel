@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
@@ -20,22 +20,22 @@
     </main>
 
     <script type="text/javascript">
-      document.getElementById("form").onsubmit = async (event) => {
-        event.preventDefault();
+      document.getElementById('form').onsubmit = async (event) => {
+        event.preventDefault()
 
         const form = new FormData(event.target)
 
-        await window.fetch("/.netlify/functions/enqueueGreeting", {
-          method: "POST",
-          body: form.get("name"),
+        await window.fetch('/.netlify/functions/enqueueGreeting', {
+          method: 'POST',
+          body: form.get('name'),
           headers: {
-            "Content-Type": "text/plain",
+            'Content-Type': 'text/plain',
           },
-        });
+        })
 
-        window.alert("Greeting was enqueued successfully!");
+        window.alert('Greeting was enqueued successfully!')
 
-        event.target.reset();
+        event.target.reset()
       }
     </script>
   </body>

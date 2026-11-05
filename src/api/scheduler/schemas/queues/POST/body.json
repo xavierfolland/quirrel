@@ -30,8 +30,12 @@
       "minItems": 1,
       "maxItems": 10
     },
-    "override": { "type": "boolean" },
-    "exclusive": { "type": "boolean" },
+    "override": {
+      "type": "boolean"
+    },
+    "exclusive": {
+      "type": "boolean"
+    },
     "repeat": {
       "type": "object",
       "properties": {

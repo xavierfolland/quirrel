@@ -1,31 +1,31 @@
-import { useGlobalSearch } from "../hooks/useGlobalSearch";
-import * as SearchPredicates from "../lib/search-predicates";
+import { useGlobalSearch } from '../hooks/useGlobalSearch'
+import * as SearchPredicates from '../lib/search-predicates'
 
 interface TableRow<T> {
-  title: string;
-  render: (v: T) => React.ReactChild | null;
-  renderTooltip?: (v: T) => string;
+  title: string
+  render: (v: T) => React.ReactChild | null
+  renderTooltip?: (v: T) => string
 }
 
 interface TableProps<T> {
-  items: T[];
-  extractKey: (item: T) => string;
-  columns: TableRow<T>[];
-  shouldBeHidden?: (row: T, searchTerm: string) => boolean;
-  endOfRow?: (v: T) => React.ReactChild;
+  items: T[]
+  extractKey: (item: T) => string
+  columns: TableRow<T>[]
+  shouldBeHidden?: (row: T, searchTerm: string) => boolean
+  endOfRow?: (v: T) => React.ReactChild
 }
 
 function defaultShouldBeHidden(row: any, searchTerm: string) {
-  return !SearchPredicates.objectIncludesSearchterm(row, searchTerm);
+  return !SearchPredicates.objectIncludesSearchterm(row, searchTerm)
 }
 
 export function Table<T>(props: TableProps<T>) {
-  const { items, columns, endOfRow, extractKey, shouldBeHidden } = props;
-  const [searchTerm] = useGlobalSearch();
+  const { items, columns, endOfRow, extractKey, shouldBeHidden } = props
+  const [searchTerm] = useGlobalSearch()
 
   const itemsToRender = items.filter(
-    (item) => !(shouldBeHidden ?? defaultShouldBeHidden)(item, searchTerm)
-  );
+    (item) => !(shouldBeHidden ?? defaultShouldBeHidden)(item, searchTerm),
+  )
 
   return (
     <div data-test-class="table" className="flex flex-col">
@@ -50,15 +50,15 @@ export function Table<T>(props: TableProps<T>) {
                 {itemsToRender.map((item) => (
                   <tr key={extractKey(item)}>
                     {columns.map((col) => {
-                      let child = col.render(item);
-                      const title = col.renderTooltip?.(item);
+                      let child = col.render(item)
+                      const title = col.renderTooltip?.(item)
 
-                      if (typeof child === "string") {
+                      if (typeof child === 'string') {
                         child = (
                           <div className="text-sm leading-5 text-gray-900">
                             {col.render(item)}
                           </div>
-                        );
+                        )
                       }
 
                       return (
@@ -69,7 +69,7 @@ export function Table<T>(props: TableProps<T>) {
                         >
                           {child}
                         </td>
-                      );
+                      )
                     })}
 
                     {endOfRow && (
@@ -85,5 +85,5 @@ export function Table<T>(props: TableProps<T>) {
         </div>
       </div>
     </div>
-  );
+  )
 }

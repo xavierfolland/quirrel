@@ -1,71 +1,71 @@
 import {
-  QuirrelClient,
+  DefaultJobOptions,
   EnqueueJobOptions,
   Job,
-  DefaultJobOptions,
+  QuirrelClient,
   QuirrelJobHandler,
   QuirrelOptions,
-} from "./client";
-import { registerDevelopmentDefaults } from "./client/config";
+} from './client'
+import { registerDevelopmentDefaults } from './client/config'
 
-export { Job, EnqueueJobOptions, DefaultJobOptions, QuirrelJobHandler };
+export { Job, EnqueueJobOptions, DefaultJobOptions, QuirrelJobHandler }
 
 registerDevelopmentDefaults({
   applicationPort: 5173,
-});
+})
 
 interface SvelteEvent {
-  request: Request;
+  request: Request
 }
 
 export type Queue<Payload> = Omit<
   QuirrelClient<Payload>,
-  "respondTo" | "makeRequest"
->;
+  'respondTo' | 'makeRequest'
+>
 
 export function Queue<Payload>(
   route: string,
   handler: QuirrelJobHandler<Payload>,
-  options?: QuirrelOptions<Payload>
+  options?: QuirrelOptions<Payload>,
 ): Queue<Payload> {
   const quirrel = new QuirrelClient<Payload>({
     options,
     handler,
     route,
-  });
+  })
 
   async function svelteHandler({ request }: SvelteEvent): Promise<Response> {
     const { body, headers, status } = await quirrel.respondTo(
       await request.text(),
-      Object.fromEntries([...request.headers.entries()])
-    );
+      Object.fromEntries([...request.headers.entries()]),
+    )
 
-    return new Response(body, { headers, status });
+    return new Response(body, { headers, status })
   }
 
   svelteHandler.enqueue = (payload: Payload, options: EnqueueJobOptions) =>
-    quirrel.enqueue(payload, options);
+    quirrel.enqueue(payload, options)
 
   svelteHandler.enqueueMany = (
-    jobs: { payload: Payload; options?: EnqueueJobOptions }[]
-  ) => quirrel.enqueueMany(jobs);
+    jobs: { payload: Payload; options?: EnqueueJobOptions }[],
+  ) => quirrel.enqueueMany(jobs)
 
-  svelteHandler.delete = (jobId: string) => quirrel.delete(jobId);
+  svelteHandler.delete = (jobId: string) => quirrel.delete(jobId)
 
-  svelteHandler.invoke = (jobId: string) => quirrel.invoke(jobId);
+  svelteHandler.invoke = (jobId: string) => quirrel.invoke(jobId)
 
-  svelteHandler.get = () => quirrel.get();
+  svelteHandler.get = () => quirrel.get()
 
-  svelteHandler.getById = (jobId: string) => quirrel.getById(jobId);
+  svelteHandler.getById = (jobId: string) => quirrel.getById(jobId)
 
-  return svelteHandler;
+  return svelteHandler
 }
 
 export function CronJob(
   route: string,
-  cronSchedule: NonNullable<NonNullable<EnqueueJobOptions["repeat"]>["cron"]>,
+  cronSchedule: NonNullable<NonNullable<EnqueueJobOptions['repeat']>['cron']>,
   handler: () => Promise<void>,
-  options?: QuirrelOptions
+  options?: QuirrelOptions,
 ) {
-  return Queue(route, handler, options) as unknown;
+  return Queue(route, handler, options) as unknown
 }

@@ -1,13 +1,13 @@
 import {
-  QuirrelClient,
-  EnqueueJobOpts,
-  EnqueueJobOptions,
-  Job,
   DefaultJobOptions,
+  EnqueueJobOptions,
+  EnqueueJobOpts,
+  Job,
+  QuirrelClient,
   QuirrelJobHandler,
   QuirrelOptions,
-} from "./client";
-import { registerDevelopmentDefaults } from "./client/config";
+} from './client'
+import { registerDevelopmentDefaults } from './client/config'
 
 export {
   Job,
@@ -15,32 +15,32 @@ export {
   EnqueueJobOptions,
   DefaultJobOptions,
   QuirrelJobHandler,
-};
+}
 
 registerDevelopmentDefaults({
   applicationPort: 8911,
-});
+})
 
 function decodeBase64(v: string): string {
-  return Buffer.from(v, "base64").toString("utf8");
+  return Buffer.from(v, 'base64').toString('utf8')
 }
 
 interface RedwoodEvent {
-  body: string;
-  headers: Record<string, string>;
-  isBase64Encoded: boolean;
+  body: string
+  headers: Record<string, string>
+  isBase64Encoded: boolean
 }
 
 interface RedwoodResponse {
-  statusCode: number;
-  body: string;
-  headers: Record<string, string>;
+  statusCode: number
+  body: string
+  headers: Record<string, string>
 }
 
 export type Queue<Payload> = Omit<
   QuirrelClient<Payload>,
-  "respondTo" | "makeRequest"
->;
+  'respondTo' | 'makeRequest'
+>
 
 export function Queue<Payload>(
   route: string,
@@ -51,43 +51,43 @@ export function Queue<Payload>(
     options,
     handler,
     route,
-  });
+  })
 
   async function redwoodHandler(event: RedwoodEvent): Promise<RedwoodResponse> {
     const { body, headers, status } = await quirrel.respondTo(
       event.isBase64Encoded ? decodeBase64(event.body) : event.body,
-      event.headers
-    );
+      event.headers,
+    )
     return {
       statusCode: status,
       body,
       headers,
-    };
+    }
   }
 
   redwoodHandler.enqueue = (payload: Payload, options: EnqueueJobOptions) =>
-    quirrel.enqueue(payload, options);
+    quirrel.enqueue(payload, options)
 
   redwoodHandler.enqueueMany = (
-    jobs: { payload: Payload; options?: EnqueueJobOptions }[]
-  ) => quirrel.enqueueMany(jobs);
+    jobs: { payload: Payload; options?: EnqueueJobOptions }[],
+  ) => quirrel.enqueueMany(jobs)
 
-  redwoodHandler.delete = (jobId: string) => quirrel.delete(jobId);
+  redwoodHandler.delete = (jobId: string) => quirrel.delete(jobId)
 
-  redwoodHandler.invoke = (jobId: string) => quirrel.invoke(jobId);
+  redwoodHandler.invoke = (jobId: string) => quirrel.invoke(jobId)
 
-  redwoodHandler.get = () => quirrel.get();
+  redwoodHandler.get = () => quirrel.get()
 
-  redwoodHandler.getById = (jobId: string) => quirrel.getById(jobId);
+  redwoodHandler.getById = (jobId: string) => quirrel.getById(jobId)
 
-  return redwoodHandler;
+  return redwoodHandler
 }
 
 export function CronJob(
   route: string,
-  cronSchedule: NonNullable<NonNullable<EnqueueJobOptions["repeat"]>["cron"]>,
+  cronSchedule: NonNullable<NonNullable<EnqueueJobOptions['repeat']>['cron']>,
   handler: () => Promise<void>,
-  options?: QuirrelOptions
+  options?: QuirrelOptions,
 ) {
-  return Queue(route, handler, options) as unknown;
+  return Queue(route, handler, options) as unknown
 }

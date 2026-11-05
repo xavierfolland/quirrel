@@ -3,16 +3,13 @@ title: Redwood
 ---
 
 ```ts title="api/src/functions/someQueue.js"
-import { Queue } from "quirrel/redwood";
+import { Queue } from 'quirrel/redwood'
 
-export const handler = Queue(
-  "someQueue",
-  async (job, meta) => {
-    // do something
-  }
-);
+export const handler = Queue('someQueue', async (job, meta) => {
+  // do something
+})
 
-export default handler;
+export default handler
 ```
 
 Creates a new Queue.

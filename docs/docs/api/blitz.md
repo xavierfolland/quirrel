@@ -3,17 +3,14 @@ title: Blitz.js
 ---
 
 > Install Quirrel using the official Blitz Recipe:
-`blitz install quirrel`
+> `blitz install quirrel`
 
 ```ts title="app/api/someQueue.ts"
-import { Queue } from "quirrel/blitz";
+import { Queue } from 'quirrel/blitz'
 
-export default Queue(
-  "api/someQueue",
-  async (job, meta) => {
-      // do something
-  }
-);
+export default Queue('api/someQueue', async (job, meta) => {
+  // do something
+})
 ```
 
 Creates a new Queue.

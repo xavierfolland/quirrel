@@ -1,32 +1,33 @@
-import { InvokeButton } from "../components/InvokeButton";
-import { Table } from "../components/Table";
-import { useQuirrel } from "../hooks/useQuirrel";
-import sortBy from "lodash/sortBy";
-import { DeleteButton } from "../components/DeleteButton";
-import { truncateUrl } from "../lib/truncate-url";
+import sortBy from 'lodash/sortBy'
+
+import { DeleteButton } from '../components/DeleteButton'
+import { InvokeButton } from '../components/InvokeButton'
+import { Table } from '../components/Table'
+import { useQuirrel } from '../hooks/useQuirrel'
+import { truncateUrl } from '../lib/truncate-url'
 
 export default function Pending() {
-  const { pending, invoke, delete: deleteJob } = useQuirrel();
+  const { pending, invoke, delete: deleteJob } = useQuirrel()
   return (
     <Table
       items={sortBy(pending, (job) => job.runAt)}
       extractKey={({ endpoint, id }) => `${endpoint};${id}`}
       columns={[
         {
-          title: "Endpoint",
+          title: 'Endpoint',
           render: (job) => truncateUrl(job.endpoint),
           renderTooltip: (job) => job.endpoint,
         },
         {
-          title: "ID",
+          title: 'ID',
           render: (job) => job.id,
         },
         {
-          title: "Run At",
+          title: 'Run At',
           render: (job) => job.runAt,
         },
         {
-          title: "Payload",
+          title: 'Payload',
           render: (job) => JSON.stringify(job.body),
         },
       ]}
@@ -38,5 +39,5 @@ export default function Pending() {
         </span>
       )}
     />
-  );
+  )
 }

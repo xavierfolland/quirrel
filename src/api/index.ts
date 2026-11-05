@@ -1,28 +1,28 @@
-import { createServer, QuirrelServerConfig } from "./scheduler";
-import { getLogger, LoggerType } from "./shared/logger";
-import { createWorker, QuirrelWorkerConfig } from "./worker";
-import pack from "../../package.json";
-import { Telemetrist } from "./shared/telemetrist";
+import pack from '../../package.json'
+import { QuirrelServerConfig, createServer } from './scheduler'
+import { LoggerType, getLogger } from './shared/logger'
+import { Telemetrist } from './shared/telemetrist'
+import { QuirrelWorkerConfig, createWorker } from './worker'
 
-export type QuirrelConfig = Omit<QuirrelServerConfig, "logger"> &
-  Omit<QuirrelWorkerConfig, "enableUsageMetering" | "logger"> & {
-    logger?: LoggerType;
-  };
+export type QuirrelConfig = Omit<QuirrelServerConfig, 'logger'> &
+  Omit<QuirrelWorkerConfig, 'enableUsageMetering' | 'logger'> & {
+    logger?: LoggerType
+  }
 
 export async function runQuirrel(config: QuirrelConfig) {
-  const logger = getLogger(config.logger);
+  const logger = getLogger(config.logger)
 
-  const server = await createServer({ ...config, logger });
+  const server = await createServer({ ...config, logger })
   const worker = await createWorker({
     ...config,
     enableUsageMetering: !!config.passphrases?.length,
     logger,
-  });
+  })
 
   if (!config.disableTelemetry) {
     new Telemetrist(config.runningInDocker ?? false).record(
-      `/version/${pack.version}`
-    );
+      `/version/${pack.version}`,
+    )
   }
 
   return {
@@ -30,7 +30,7 @@ export async function runQuirrel(config: QuirrelConfig) {
     worker,
     httpServer: server.server,
     async close() {
-      await Promise.all([server.close(), worker.close()]);
+      await Promise.all([server.close(), worker.close()])
     },
-  };
+  }
 }

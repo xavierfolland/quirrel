@@ -27,11 +27,17 @@
             "type": "string"
           }
         },
-        "required": ["route", "schedule"],
+        "required": [
+          "route",
+          "schedule"
+        ],
         "additionalProperties": false
       }
     }
   },
-  "required": ["baseUrl", "crons"],
+  "required": [
+    "baseUrl",
+    "crons"
+  ],
   "additionalProperties": false
 }

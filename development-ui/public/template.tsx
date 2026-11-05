@@ -1,20 +1,21 @@
-import React from "react";
-import ReactDom from "react-dom";
-import { QuirrelDevelopmentUI, Route, QuirrelDevelopmentUIProps } from "../src";
+import React from 'react'
+import ReactDom from 'react-dom'
 
-export function initialize(config: QuirrelDevelopmentUIProps["config"]) {
+import { QuirrelDevelopmentUI, QuirrelDevelopmentUIProps, Route } from '../src'
+
+export function initialize(config: QuirrelDevelopmentUIProps['config']) {
   function getCurrentRoute(): Route {
-    const { pathname } = window.location;
+    const { pathname } = window.location
     switch (pathname) {
-      case "/activity":
-      case "/activity-log":
-        return "activity-log";
-      case "/pending":
-        return "pending";
-      case "/cron":
-        return "cron";
+      case '/activity':
+      case '/activity-log':
+        return 'activity-log'
+      case '/pending':
+        return 'pending'
+      case '/cron':
+        return 'cron'
       default:
-        return "pending";
+        return 'pending'
     }
   }
 
@@ -24,17 +25,17 @@ export function initialize(config: QuirrelDevelopmentUIProps["config"]) {
       router={{
         initial: getCurrentRoute(),
         onChange(newRoute) {
-          window.history.pushState(null, newRoute, "/" + newRoute);
+          window.history.pushState(null, newRoute, '/' + newRoute)
         },
         listenToNavigationChanges(onChange) {
           function listener() {
-            onChange(getCurrentRoute());
+            onChange(getCurrentRoute())
           }
-          window.addEventListener("popstate", listener);
-          return () => window.removeEventListener("popstate", listener);
+          window.addEventListener('popstate', listener)
+          return () => window.removeEventListener('popstate', listener)
         },
       }}
     />,
-    document.getElementById("app")
-  );
+    document.getElementById('app'),
+  )
 }

@@ -1,2 +1,2 @@
 #!/usr/bin/env node
-require("./dist/cjs/src/cli/index");
+require('./dist/cjs/src/cli/index')

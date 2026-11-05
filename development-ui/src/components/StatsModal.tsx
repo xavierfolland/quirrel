@@ -1,37 +1,38 @@
-import { useEffect, useState } from "react";
-import { useQuirrel } from "../hooks/useQuirrel";
-import { Modal } from "./Modal";
-import { Table } from "./Table";
+import { useEffect, useState } from 'react'
+
+import { useQuirrel } from '../hooks/useQuirrel'
+import { Modal } from './Modal'
+import { Table } from './Table'
 
 export function StatsModal() {
-  const [showModal, setShowModal] = useState(false);
+  const [showModal, setShowModal] = useState(false)
 
-  const { connectedTo } = useQuirrel();
+  const { connectedTo } = useQuirrel()
 
-  const [stats, setStats] = useState<Record<string, { count: number }>>({});
+  const [stats, setStats] = useState<Record<string, { count: number }>>({})
 
   useEffect(() => {
     if (!showModal) {
-      setStats({});
+      setStats({})
     }
 
     async function run() {
-      const response = await fetch(connectedTo?.baseUrl + "/queues/stats", {
+      const response = await fetch(connectedTo?.baseUrl + '/queues/stats', {
         headers: {
           Authorization: `Bearer ${connectedTo?.token}`,
         },
-      });
+      })
 
       if (!response.ok) {
-        throw new Error("Failed to fetch stats");
+        throw new Error('Failed to fetch stats')
       }
 
-      const stats = await response.json();
-      setStats(stats);
+      const stats = await response.json()
+      setStats(stats)
     }
 
-    run();
-  }, [connectedTo, showModal]);
+    run()
+  }, [connectedTo, showModal])
 
   return (
     <>
@@ -51,31 +52,31 @@ export function StatsModal() {
               Queue Statistics
             </h3>
             <div className="mx-4">
-            <Table
-              items={Object.entries(stats)}
-              extractKey={([endpoint]) => endpoint}
-              columns={[
-                {
-                  title: "Endpoint",
-                  render([endpoint]) {
-                    return new URL(endpoint).pathname;
+              <Table
+                items={Object.entries(stats)}
+                extractKey={([endpoint]) => endpoint}
+                columns={[
+                  {
+                    title: 'Endpoint',
+                    render([endpoint]) {
+                      return new URL(endpoint).pathname
+                    },
+                    renderTooltip([endpoint]) {
+                      return endpoint
+                    },
                   },
-                  renderTooltip([endpoint]) {
-                    return endpoint;
+                  {
+                    title: 'Job Count',
+                    render([, { count }]) {
+                      return count
+                    },
                   },
-                },
-                {
-                  title: "Job Count",
-                  render([, { count }]) {
-                    return count;
-                  },
-                },
-              ]}
-            />
+                ]}
+              />
             </div>
           </div>
         </div>
       </Modal>
     </>
-  );
+  )
 }

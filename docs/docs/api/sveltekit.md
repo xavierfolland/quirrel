@@ -3,14 +3,14 @@ title: SvelteKit
 ---
 
 ```ts title="src/routes/greetingsQueue/+server.ts"
-import { Queue } from "quirrel/sveltekit";
+import { Queue } from 'quirrel/sveltekit'
 
 const queue = Queue(
-  "greetingsQueue", // 👈 the route it's reachable on
+  'greetingsQueue', // 👈 the route it's reachable on
   async (job, meta) => {
     // do something
-  }
-);
+  },
+)
 
 export const POST = queue
 

@@ -1,8 +1,8 @@
-import type crossFetch from "cross-fetch";
-import type { FastifyInstance } from "fastify";
+import type crossFetch from 'cross-fetch'
+import type { FastifyInstance } from 'fastify'
 
 export function makeFetchMockConnectedTo(
-  fastify: FastifyInstance
+  fastify: FastifyInstance,
 ): typeof crossFetch {
   return async (url, conf) => {
     const response = await fastify.inject({
@@ -10,13 +10,13 @@ export function makeFetchMockConnectedTo(
       headers: conf?.headers as any,
       payload: conf?.body as any,
       path: new URL(url as string).pathname,
-    });
+    })
 
     return {
       status: response.statusCode,
       statusText: response.statusMessage,
       text: async () => response.payload,
       json: async () => response.json(),
-    } as any;
-  };
+    } as any
+  }
 }

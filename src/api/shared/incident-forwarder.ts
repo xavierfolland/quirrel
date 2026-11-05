@@ -1,36 +1,36 @@
-import fetch from "cross-fetch";
+import fetch from 'cross-fetch'
 
 export class IncidentForwarder {
   constructor(
     private readonly incidentEndpoint: string,
-    private readonly passphrase: string
+    private readonly passphrase: string,
   ) {}
 
   async dispatch(
     job: {
-      tokenId: string;
-      id: string;
-      endpoint: string;
-      payload: string;
-      runAt: Date;
+      tokenId: string
+      id: string
+      endpoint: string
+      payload: string
+      runAt: Date
     },
-    incident: { status: number; body: string }
+    incident: { status: number; body: string },
   ) {
     try {
       fetch(this.incidentEndpoint, {
-        method: "POST",
+        method: 'POST',
         body: JSON.stringify({
-          type: "incident",
+          type: 'incident',
           job,
           incident,
         }),
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
           Authorization: `Bearer ${this.passphrase}`,
         },
-      });
+      })
     } catch (error) {
-      console.error("Incident receiver is down: ", error);
+      console.error('Incident receiver is down: ', error)
     }
   }
 }

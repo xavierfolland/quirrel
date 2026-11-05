@@ -3,14 +3,11 @@ title: Vercel Serverless Functions
 ---
 
 ```ts title="api/someQueue.ts"
-import { Queue } from "quirrel/vercel";
+import { Queue } from 'quirrel/vercel'
 
-export default Queue(
-  "api/someQueue",
-  async (job, meta) => {
-    // do something
-  }
-);
+export default Queue('api/someQueue', async (job, meta) => {
+  // do something
+})
 ```
 
 Creates a new Queue.

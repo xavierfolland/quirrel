@@ -1,15 +1,14 @@
-import { LoaderFunction } from "remix";
-
-import greetingsQueue from "~/queues/greetings.server";
+import { LoaderFunction } from 'remix'
+import greetingsQueue from '~/queues/greetings.server'
 
 export const loader: LoaderFunction = async () => {
-  await greetingsQueue.enqueue("Groot");
-  return null;
-};
+  await greetingsQueue.enqueue('Groot')
+  return null
+}
 
 export default function Index() {
   return (
-    <div style={{ fontFamily: "system-ui, sans-serif", lineHeight: "1.4" }}>
+    <div style={{ fontFamily: 'system-ui, sans-serif', lineHeight: '1.4' }}>
       <h1>Welcome to Remix</h1>
       <ul>
         <li>
@@ -37,5 +36,5 @@ export default function Index() {
         </li>
       </ul>
     </div>
-  );
+  )
 }

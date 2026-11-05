@@ -9,6 +9,8 @@
       "description": "The endpoint that jobs are sent to."
     }
   },
-  "required": ["endpoint"],
+  "required": [
+    "endpoint"
+  ],
   "additionalProperties": false
 }

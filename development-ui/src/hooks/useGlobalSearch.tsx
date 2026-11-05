@@ -1,26 +1,26 @@
 import {
-  createContext,
   Dispatch,
   PropsWithChildren,
   SetStateAction,
+  createContext,
   useContext,
   useState,
-} from "react";
+} from 'react'
 
 const GlobalSearchContext = createContext<
   [string, Dispatch<SetStateAction<string>>]
->(["", () => {}]);
+>(['', () => {}])
 
 export function useGlobalSearch() {
-  return useContext(GlobalSearchContext);
+  return useContext(GlobalSearchContext)
 }
 
 export function GlobalSearchProvider(props: PropsWithChildren<{}>) {
-  const searchTermState = useState("");
+  const searchTermState = useState('')
 
   return (
     <GlobalSearchContext.Provider value={searchTermState}>
       {props.children}
     </GlobalSearchContext.Provider>
-  );
+  )
 }

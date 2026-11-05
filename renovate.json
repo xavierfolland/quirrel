@@ -3,5 +3,7 @@
     "config:base",
     ":pinOnlyDevDependencies"
   ],
-  "labels": ["dependencies"]
+  "labels": [
+    "dependencies"
+  ]
 }

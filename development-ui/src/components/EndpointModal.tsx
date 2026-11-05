@@ -1,46 +1,47 @@
-import { useContext, useEffect, useState } from "react";
-import { ConfigContext } from "..";
-import { useQuirrel } from "../hooks/useQuirrel";
-import { connectionDetailsToHash } from "../lib/encrypted-connection-details";
-import { Modal } from "./Modal";
+import { useContext, useEffect, useState } from 'react'
+
+import { ConfigContext } from '..'
+import { useQuirrel } from '../hooks/useQuirrel'
+import { connectionDetailsToHash } from '../lib/encrypted-connection-details'
+import { Modal } from './Modal'
 
 function isHttpOrHttpsURL(s: string) {
   try {
-    const url = new URL(s);
-    return ["http:", "https:"].includes(url.protocol);
+    const url = new URL(s)
+    return ['http:', 'https:'].includes(url.protocol)
   } catch (error) {
-    return false;
+    return false
   }
 }
 
 function formatBaseUrl(urlString: string) {
-  return new URL(urlString).hostname;
+  return new URL(urlString).hostname
 }
 
 export function EndpointModal() {
-  const [showModal, setShowModal] = useState(false);
+  const [showModal, setShowModal] = useState(false)
 
-  const { connectedTo, connectTo } = useQuirrel();
-  const { fixedEndpoint } = useContext(ConfigContext);
+  const { connectedTo, connectTo } = useQuirrel()
+  const { fixedEndpoint } = useContext(ConfigContext)
 
   const [endpoint, setEndpoint] = useState(
-    connectedTo?.baseUrl ?? fixedEndpoint ?? ""
-  );
-  const [token, setToken] = useState(connectedTo?.token ?? "");
+    connectedTo?.baseUrl ?? fixedEndpoint ?? '',
+  )
+  const [token, setToken] = useState(connectedTo?.token ?? '')
   const [encryptionSecret, setEncryptionSecret] = useState(
-    connectedTo?.encryptionSecret ?? ""
-  );
+    connectedTo?.encryptionSecret ?? '',
+  )
 
-  const [bookmarkUrl, setBookmarkUrl] = useState<string>();
+  const [bookmarkUrl, setBookmarkUrl] = useState<string>()
 
   useEffect(() => {
     if (!connectedTo) {
-      return;
+      return
     }
-    setEndpoint(connectedTo.baseUrl);
-    setToken(connectedTo.token ?? "");
-    setEncryptionSecret(connectedTo.encryptionSecret ?? "");
-  }, [connectedTo]);
+    setEndpoint(connectedTo.baseUrl)
+    setToken(connectedTo.token ?? '')
+    setEncryptionSecret(connectedTo.encryptionSecret ?? '')
+  }, [connectedTo])
 
   return (
     <>
@@ -51,7 +52,7 @@ export function EndpointModal() {
       >
         {connectedTo?.baseUrl
           ? formatBaseUrl(connectedTo?.baseUrl)
-          : "Connecting ..."}
+          : 'Connecting ...'}
 
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -98,7 +99,7 @@ export function EndpointModal() {
                 {!fixedEndpoint && (
                   <span className="space-x-2 text-blue-400 text-xs">
                     <button
-                      onClick={() => setEndpoint("http://localhost:9181")}
+                      onClick={() => setEndpoint('http://localhost:9181')}
                       className="inline-flex items-center hover:text-blue-300 focus:outline-none"
                     >
                       <svg
@@ -118,7 +119,7 @@ export function EndpointModal() {
                       localhost
                     </button>
                     <button
-                      onClick={() => setEndpoint("https://api.quirrel.dev")}
+                      onClick={() => setEndpoint('https://api.quirrel.dev')}
                       className="inline-flex items-center hover:text-blue-300 focus:outline-none"
                     >
                       <svg
@@ -139,7 +140,7 @@ export function EndpointModal() {
                     </button>
                     <button
                       onClick={() => {
-                        setEndpoint("");
+                        setEndpoint('')
                       }}
                       className="inline-flex items-center hover:text-blue-300 focus:outline-none"
                     >
@@ -190,13 +191,13 @@ export function EndpointModal() {
                     baseUrl: endpoint,
                     encryptionSecret,
                     token,
-                  });
+                  })
 
                   if (!hash) {
-                    return;
+                    return
                   }
 
-                  setBookmarkUrl(location.origin + hash);
+                  setBookmarkUrl(location.origin + hash)
                 }}
                 className="text-gray-700 disabled:text-gray-400 transition text-s mt-3 inline-flex items-center"
                 disabled={!endpoint}
@@ -240,7 +241,7 @@ export function EndpointModal() {
               disabled={!isHttpOrHttpsURL(endpoint)}
               className="inline-flex justify-center w-full rounded-md border border-transparent px-4 py-2 bg-orange-500 text-base disabled:opacity-50 leading-6 font-medium text-white shadow-sm hover:bg-orange-400 focus:outline-none focus:border-red-700 focus:shadow-outline-red transition ease-in-out duration-150 sm:text-sm sm:leading-5"
               onClick={(evt) => {
-                evt.preventDefault();
+                evt.preventDefault()
 
                 connectTo({
                   baseUrl: endpoint,
@@ -248,8 +249,8 @@ export function EndpointModal() {
                   encryptionSecret: !!encryptionSecret
                     ? encryptionSecret
                     : undefined,
-                });
-                setShowModal(false);
+                })
+                setShowModal(false)
               }}
             >
               Connect
@@ -267,5 +268,5 @@ export function EndpointModal() {
         </div>
       </Modal>
     </>
-  );
+  )
 }

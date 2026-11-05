@@ -1,5 +1,5 @@
-import { Queue } from "quirrel/remix";
+import { Queue } from 'quirrel/remix'
 
-export default Queue("/queues/greetings", async (name: string) => {
-  console.log(`Greetings, ${name}!`);
-});
+export default Queue('/queues/greetings', async (name: string) => {
+  console.log(`Greetings, ${name}!`)
+})

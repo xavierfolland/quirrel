@@ -1,52 +1,53 @@
-import { QuirrelClient } from "..";
-import { run } from "../../api/test/runQuirrel";
-import { getAddress } from "./util";
-import * as http from "http";
-import delay from "delay";
+import delay from 'delay'
+import * as http from 'http'
 
-test("cron payload with encryption", async () => {
-  const server = await run("Mock");
+import { QuirrelClient } from '..'
+import { run } from '../../api/test/runQuirrel'
+import { getAddress } from './util'
 
-  const encryptedBodies: string[] = [];
-  const decryptedBodies: string[] = [];
+test('cron payload with encryption', async () => {
+  const server = await run('Mock')
 
-  let quirrel: QuirrelClient<any>;
+  const encryptedBodies: string[] = []
+  const decryptedBodies: string[] = []
+
+  let quirrel: QuirrelClient<any>
 
   const endpoint = http
     .createServer((req) => {
-      let body = "";
-      req.on("data", (data) => {
-        body += data;
-      });
-      req.on("end", () => {
-        encryptedBodies.push(body);
-        quirrel.respondTo(body, req.headers);
-      });
+      let body = ''
+      req.on('data', (data) => {
+        body += data
+      })
+      req.on('end', () => {
+        encryptedBodies.push(body)
+        quirrel.respondTo(body, req.headers)
+      })
     })
-    .listen(0);
+    .listen(0)
 
   quirrel = new QuirrelClient({
-    route: "/",
+    route: '/',
     async handler(body) {
-      decryptedBodies.push(body);
+      decryptedBodies.push(body)
     },
     config: {
       quirrelBaseUrl: getAddress(server.server),
-      encryptionSecret: "4ws8syoOgeQX6WFvXuUneGNwy7QvLxpk",
+      encryptionSecret: '4ws8syoOgeQX6WFvXuUneGNwy7QvLxpk',
       applicationBaseUrl: getAddress(endpoint),
     },
-  });
+  })
 
-  await server.app.app.jobs.updateCron("anonymous", {
+  await server.app.app.jobs.updateCron('anonymous', {
     baseUrl: getAddress(endpoint),
-    crons: [{ route: "/", schedule: "@daily" }],
-  });
+    crons: [{ route: '/', schedule: '@daily' }],
+  })
 
-  await quirrel.invoke("@cron");
+  await quirrel.invoke('@cron')
 
-  await delay(100);
+  await delay(100)
 
-  expect(encryptedBodies).toEqual(["null"]);
-  expect(decryptedBodies).toEqual([null]);
-  server.teardown();
-});
+  expect(encryptedBodies).toEqual(['null'])
+  expect(decryptedBodies).toEqual([null])
+  server.teardown()
+})

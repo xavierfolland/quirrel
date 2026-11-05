@@ -1,38 +1,38 @@
 function fromBase64(v: string): string | null {
   try {
-    return atob(v);
+    return atob(v)
   } catch (error) {
-    return null;
+    return null
   }
 }
 
 function toBase64(v: string): string {
-  return btoa(v);
+  return btoa(v)
 }
 
 /**
  * Only to be executed client-side.
  */
 export function getHashConfig(): Record<string, any> | undefined {
-  const { hash } = location;
+  const { hash } = location
   if (!hash) {
-    return;
+    return
   }
 
-  const configPart = hash.slice(1);
+  const configPart = hash.slice(1)
 
-  const plain = fromBase64(configPart);
+  const plain = fromBase64(configPart)
   if (!plain) {
-    return;
+    return
   }
 
   try {
-    return JSON.parse(plain);
+    return JSON.parse(plain)
   } catch (error) {
-    return;
+    return
   }
 }
 
 export function configToHash(v: Record<string, any>): string {
-  return "#" + toBase64(JSON.stringify(v));
+  return '#' + toBase64(JSON.stringify(v))
 }

@@ -1,24 +1,25 @@
-import Owl from "@quirrel/owl";
-import { Redis } from "ioredis";
-import { cron, every } from "../../shared/repeat";
-import { IncidentForwarder } from "./incident-forwarder";
-import { decodeQueueDescriptor } from "./queue-descriptor";
-import { ExecutionError } from "../worker";
-import { Telemetrist } from "./telemetrist";
-import { Logger } from "./logger";
+import Owl from '@quirrel/owl'
+import { Redis } from 'ioredis'
+
+import { cron, every } from '../../shared/repeat'
+import { ExecutionError } from '../worker'
+import { IncidentForwarder } from './incident-forwarder'
+import { Logger } from './logger'
+import { decodeQueueDescriptor } from './queue-descriptor'
+import { Telemetrist } from './telemetrist'
 
 export async function createOwl(
   redisFactory: () => Redis,
   logger?: Logger,
   incidentReceiver?: { endpoint: string; passphrase: string },
-  telemetrist?: Telemetrist
+  telemetrist?: Telemetrist,
 ) {
   const incidentForwarder = incidentReceiver
     ? new IncidentForwarder(
         incidentReceiver.endpoint,
-        incidentReceiver.passphrase
+        incidentReceiver.passphrase,
       )
-    : undefined;
+    : undefined
 
   const owl = new Owl({
     redisFactory: redisFactory as any,
@@ -26,9 +27,9 @@ export async function createOwl(
       every,
       cron,
     },
-    logger: logger?.log?.child({ module: "owl" }),
+    logger: logger?.log?.child({ module: 'owl' }),
     async onError(ack, job, error: ExecutionError) {
-      let { tokenId, endpoint } = decodeQueueDescriptor(job.queue);
+      let { tokenId, endpoint } = decodeQueueDescriptor(job.queue)
 
       await incidentForwarder?.dispatch(
         {
@@ -41,16 +42,16 @@ export async function createOwl(
         {
           body: error.responseBody,
           status: error.responseStatus,
-        }
-      );
+        },
+      )
 
-      await telemetrist?.dispatch("execution_errored");
+      await telemetrist?.dispatch('execution_errored')
     },
-  });
+  })
 
   if (!process.env.SKIP_OWL_MIGRATIONS) {
-    await owl.runMigrations();
+    await owl.runMigrations()
   }
 
-  return owl;
+  return owl
 }

@@ -37,7 +37,7 @@ Because you don't want your data to get into the wrong hands, Quirrel performs c
 The logic has been extracted into its own package called [secure-e2ee](https://github.com/quirrel-dev/secure-e2ee), and it basically works like this:
 
 You configure it with one encryption secret and potentially multiple decryption secrets, each 32 characters long.  
-Whenever a job is about to be sent to the Quirrel server, it is combined with a random *initialisation vector* and then encrypted with `aes-256-gcm`.
+Whenever a job is about to be sent to the Quirrel server, it is combined with a random _initialisation vector_ and then encrypted with `aes-256-gcm`.
 We then send over the initialisation vector, the encrypted payload and the encryption secret descriptor, which is the first four characters of the encryption secret's md5 hash.
 
 Whenever a secret is compromised, you can generate a new encryption secret and move the old one to the decryption secrets.

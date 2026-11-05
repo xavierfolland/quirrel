@@ -1,14 +1,14 @@
-import type { Redis } from "ioredis";
-import * as uuid from "uuid";
+import type { Redis } from 'ioredis'
+import * as uuid from 'uuid'
 
-const TOKEN_ID = "tokens:token-id";
-const ID_TOKEN = "tokens:id-token";
+const TOKEN_ID = 'tokens:token-id'
+const ID_TOKEN = 'tokens:id-token'
 
 export class TokenRepo {
   constructor(private readonly redis: Redis) {}
 
   async create(id: string) {
-    const token = uuid.v4();
+    const token = uuid.v4()
 
     await this.redis.eval(
       `
@@ -19,18 +19,18 @@ export class TokenRepo {
       TOKEN_ID,
       ID_TOKEN,
       token,
-      id
-    );
+      id,
+    )
 
-    return token;
+    return token
   }
 
   async getById(id: string) {
-    return await this.redis.hget(ID_TOKEN, id);
+    return await this.redis.hget(ID_TOKEN, id)
   }
 
   async check(token: string) {
-    return await this.redis.hget(TOKEN_ID, token);
+    return await this.redis.hget(TOKEN_ID, token)
   }
 
   async revoke(id: string) {
@@ -48,9 +48,9 @@ export class TokenRepo {
       2,
       TOKEN_ID,
       ID_TOKEN,
-      id
-    );
+      id,
+    )
 
-    return !!result;
+    return !!result
   }
 }

@@ -1,33 +1,33 @@
-import { QuirrelClient } from "..";
+import { QuirrelClient } from '..'
 
-describe("schema-check", () => {
+describe('schema-check', () => {
   const quirrel = new QuirrelClient({
     async handler() {},
-    route: "api/someAPI",
+    route: 'api/someAPI',
     config: {
-      encryptionSecret: "4ws8syoOgeQX6WFvXuUneGNwy7QvLxpk",
-      applicationBaseUrl: "https://anysite.com",
+      encryptionSecret: '4ws8syoOgeQX6WFvXuUneGNwy7QvLxpk',
+      applicationBaseUrl: 'https://anysite.com',
     },
-  });
+  })
 
-  it("catches Firebase-style dates", async () => {
+  it('catches Firebase-style dates', async () => {
     await expect(async () => {
       await quirrel.enqueue(null, {
-        runAt: ({
+        runAt: {
           _seconds: 1608164625,
           _nanoseconds: 119000000,
-        } as any) as Date,
-      });
-    }).rejects.toThrowError("Expected date, received object");
-  });
+        } as any as Date,
+      })
+    }).rejects.toThrowError('Expected date, received object')
+  })
 
-  it("catches non-vercel/ms-compliant delays", async () => {
+  it('catches non-vercel/ms-compliant delays', async () => {
     await expect(async () => {
       await quirrel.enqueue(null, {
-        delay: "10 shreks",
-      });
+        delay: '10 shreks',
+      })
     }).rejects.toThrowError(
-      "Please provide a valid time span, according to https://github.com/vercel/ms"
-    );
-  });
-});
+      'Please provide a valid time span, according to https://github.com/vercel/ms',
+    )
+  })
+})

@@ -1,72 +1,73 @@
-import { FC, useContext, useState } from "react";
-import clsx from "clsx";
-import React from "react";
-import { EndpointModal } from "./EndpointModal";
-import { SearchBar } from "./SearchBar";
-import { RouterContext, Route, ConfigContext } from "../index";
-import horn from "url:../img/horn_transparent.png";
-import { StatsModal } from "./StatsModal";
+import clsx from 'clsx'
+import { FC, useContext, useState } from 'react'
+import React from 'react'
+import horn from 'url:../img/horn_transparent.png'
+
+import { ConfigContext, Route, RouterContext } from '../index'
+import { EndpointModal } from './EndpointModal'
+import { SearchBar } from './SearchBar'
+import { StatsModal } from './StatsModal'
 
 interface RouterAnchorProps extends React.HTMLProps<HTMLAnchorElement> {
-  to: Route;
-  getClassName(selected: boolean): string;
+  to: Route
+  getClassName(selected: boolean): string
 }
 
 const RouterAnchor: FC<RouterAnchorProps> = ({ to, getClassName, ...rest }) => {
-  const router = useContext(RouterContext);
-  const selected = router.current === to;
+  const router = useContext(RouterContext)
+  const selected = router.current === to
   return (
     <a
       {...rest}
-      href={"/" + to}
+      href={'/' + to}
       onClick={(evt) => {
-        evt.preventDefault();
-        router.navigate(to);
+        evt.preventDefault()
+        router.navigate(to)
       }}
       className={getClassName(selected)}
     />
-  );
-};
+  )
+}
 
 const buttonBaseClassName =
-  "px-3 py-2 rounded-md font-medium focus:outline-none focus:text-white focus:bg-orange-300 cursor-pointer";
+  'px-3 py-2 rounded-md font-medium focus:outline-none focus:text-white focus:bg-orange-300 cursor-pointer'
 
-const PillButton: FC<Omit<RouterAnchorProps, "getClassName">> = (props) => (
+const PillButton: FC<Omit<RouterAnchorProps, 'getClassName'>> = (props) => (
   <RouterAnchor
     {...props}
     getClassName={(selected) =>
       clsx(
         selected
-          ? "text-white bg-orange-500"
-          : "text-gray-800 hover:text-white hover:bg-orange-300",
-        "text-sm",
-        buttonBaseClassName
+          ? 'text-white bg-orange-500'
+          : 'text-gray-800 hover:text-white hover:bg-orange-300',
+        'text-sm',
+        buttonBaseClassName,
       )
     }
   />
-);
+)
 
-const MenuButton: FC<Omit<RouterAnchorProps, "getClassName">> = (props) => (
+const MenuButton: FC<Omit<RouterAnchorProps, 'getClassName'>> = (props) => (
   <RouterAnchor
     {...props}
     getClassName={(selected) =>
       clsx(
         selected
-          ? "text-white bg-orange-500"
-          : "text-gray-800 hover:text-white hover:bg-orange-300",
-        "block text-base",
-        buttonBaseClassName
+          ? 'text-white bg-orange-500'
+          : 'text-gray-800 hover:text-white hover:bg-orange-300',
+        'block text-base',
+        buttonBaseClassName,
       )
     }
   />
-);
+)
 
 export function Nav() {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false)
 
-  const config = useContext(ConfigContext);
+  const config = useContext(ConfigContext)
   const showEndpointModal =
-    !config.fixedEndpoint || config.authentication.enabled;
+    !config.fixedEndpoint || config.authentication.enabled
 
   return (
     <nav className="bg-orange-200">
@@ -127,7 +128,7 @@ export function Nav() {
               onClick={() => setIsMenuOpen((open) => !open)}
             >
               <svg
-                className={clsx("h-6 w-6", isMenuOpen ? "hidden" : "block")}
+                className={clsx('h-6 w-6', isMenuOpen ? 'hidden' : 'block')}
                 stroke="currentColor"
                 fill="none"
                 viewBox="0 0 24 24"
@@ -140,7 +141,7 @@ export function Nav() {
                 />
               </svg>
               <svg
-                className={clsx("h-6 w-6", isMenuOpen ? "block" : "hidden")}
+                className={clsx('h-6 w-6', isMenuOpen ? 'block' : 'hidden')}
                 stroke="currentColor"
                 fill="none"
                 viewBox="0 0 24 24"
@@ -157,7 +158,7 @@ export function Nav() {
         </div>
       </div>
 
-      <div className={clsx(isMenuOpen ? "block" : "hidden", "md:hidden")}>
+      <div className={clsx(isMenuOpen ? 'block' : 'hidden', 'md:hidden')}>
         <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
           <MenuButton to="activity-log">Activity</MenuButton>
           <MenuButton to="pending">Pending</MenuButton>
@@ -197,5 +198,5 @@ export function Nav() {
         </div>
       </div>
     </nav>
-  );
+  )
 }

@@ -3,20 +3,17 @@ title: Remix
 ---
 
 ```ts title="app/queues/someQueue.server.ts"
-import { Queue } from "quirrel/remix";
+import { Queue } from 'quirrel/remix'
 
-export default Queue(
-  "queues/someQueue",
-  async (job, meta) => {
-    // do something
-  },
-);
+export default Queue('queues/someQueue', async (job, meta) => {
+  // do something
+})
 ```
 
 ```ts title="app/routes/queues/someQueue.ts"
-import someQueue from "~/queues/someQueue.server";
+import someQueue from '~/queues/someQueue.server'
 
-export const action = someQueue;
+export const action = someQueue
 ```
 
 Creates a new Queue.

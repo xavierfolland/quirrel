@@ -1,7 +1,7 @@
-import { FastifyPluginCallback } from "fastify";
+import { FastifyPluginCallback } from 'fastify'
 
-import GetHealthResponseSchema from "../schemas/health.json";
-import { GETHealthResponse } from "../types/health";
+import GetHealthResponseSchema from '../schemas/health.json'
+import { GETHealthResponse } from '../types/health'
 
 const health: FastifyPluginCallback = (app, opts, done) => {
   async function checkRedis() {
@@ -14,27 +14,27 @@ const health: FastifyPluginCallback = (app, opts, done) => {
   }
 
   app.get<{ Reply: GETHealthResponse }>(
-    "/",
+    '/',
     {
       schema: {
         response: {
           200: GetHealthResponseSchema,
         },
-        tags: ["Admin"],
-        summary: "Check availability"
+        tags: ['Admin'],
+        summary: 'Check availability',
       },
     },
     async (request, reply) => {
-      const redis = await checkRedis();
+      const redis = await checkRedis()
 
-      reply.status(redis ? 200 : 502);
+      reply.status(redis ? 200 : 502)
       reply.send({
-        redis: redis ? "up" : "down",
-      });
-    }
-  );
+        redis: redis ? 'up' : 'down',
+      })
+    },
+  )
 
-  done();
-};
+  done()
+}
 
-export default health;
+export default health

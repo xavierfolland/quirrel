@@ -1,26 +1,26 @@
-import type { FastifyPluginCallback, FastifyRequest } from "fastify";
-import fastifyWebsocket from "@fastify/websocket";
+import fastifyWebsocket from '@fastify/websocket'
+import type { FastifyPluginCallback, FastifyRequest } from 'fastify'
 
 // https://stackoverflow.com/questions/4361173/http-headers-in-websockets-client-api
 function workAroundWebsocketAuth(req: FastifyRequest) {
-  const authToken = req.headers["sec-websocket-protocol"];
+  const authToken = req.headers['sec-websocket-protocol']
   if (!req.headers.authorization) {
-    req.headers.authorization = `Bearer ${authToken}`;
+    req.headers.authorization = `Bearer ${authToken}`
   }
 }
 
 const activityPlugin: FastifyPluginCallback = (fastify, _opts, done) => {
-  fastify.register(fastifyWebsocket);
+  fastify.register(fastifyWebsocket)
 
   fastify.register(async (fastify) => {
     fastify.get(
-      "/",
+      '/',
       {
         websocket: true,
         schema: {
-          tags: ["DX"],
-          summary: "Activity feed, published as websocket",
-          description: "Token is passed via Websocket protocol.",
+          tags: ['DX'],
+          summary: 'Activity feed, published as websocket',
+          description: 'Token is passed via Websocket protocol.',
           security: fastify.adminBasedAuthEnabled
             ? [
                 {
@@ -32,25 +32,25 @@ const activityPlugin: FastifyPluginCallback = (fastify, _opts, done) => {
         },
       },
       async (connection, req) => {
-        workAroundWebsocketAuth(req);
+        workAroundWebsocketAuth(req)
 
-        const tokenId = await fastify.tokenAuth.authenticate(req);
+        const tokenId = await fastify.tokenAuth.authenticate(req)
 
         if (!tokenId) {
-          connection.socket.close();
-          return;
+          connection.socket.close()
+          return
         }
 
         const close = fastify.jobs.onEvent(tokenId, (event, job) => {
-          connection.socket.send(JSON.stringify([event, job]));
-        });
+          connection.socket.send(JSON.stringify([event, job]))
+        })
 
-        connection.on("close", close);
-      }
-    );
-  });
+        connection.on('close', close)
+      },
+    )
+  })
 
-  done();
-};
+  done()
+}
 
-export default activityPlugin;
+export default activityPlugin

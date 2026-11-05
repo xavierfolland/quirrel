@@ -1,61 +1,62 @@
-import { JobMeta, QuirrelClient } from "..";
-import { run } from "../../api/test/runQuirrel";
-import * as http from "http";
-import delay from "delay";
-import { getAddress } from "./util";
+import delay from 'delay'
+import * as http from 'http'
 
-test("encryption", async () => {
-  const server = await run("Mock");
+import { JobMeta, QuirrelClient } from '..'
+import { run } from '../../api/test/runQuirrel'
+import { getAddress } from './util'
 
-  const encryptedBodies: string[] = [];
-  const decryptedBodies: string[] = [];
-  const jobMetadata: JobMeta[] = [];
+test('encryption', async () => {
+  const server = await run('Mock')
 
-  let quirrel: QuirrelClient<any>;
+  const encryptedBodies: string[] = []
+  const decryptedBodies: string[] = []
+  const jobMetadata: JobMeta[] = []
+
+  let quirrel: QuirrelClient<any>
 
   const endpoint = http
     .createServer((req) => {
-      let body = "";
-      req.on("data", (data) => {
-        body += data;
-      });
-      req.on("end", () => {
-        encryptedBodies.push(body);
+      let body = ''
+      req.on('data', (data) => {
+        body += data
+      })
+      req.on('end', () => {
+        encryptedBodies.push(body)
         quirrel.respondTo(body, req.headers).then(({ status }) => {
           if (status === 401) {
-            decryptedBodies.push("-invalid");
+            decryptedBodies.push('-invalid')
           }
-        });
-      });
+        })
+      })
     })
-    .listen(0);
+    .listen(0)
 
   quirrel = new QuirrelClient({
     async handler(body, meta) {
-      jobMetadata.push(meta);
-      decryptedBodies.push(body);
+      jobMetadata.push(meta)
+      decryptedBodies.push(body)
     },
-    route: "/lol",
+    route: '/lol',
     config: {
       applicationBaseUrl: getAddress(endpoint),
       quirrelBaseUrl: getAddress(server.server),
-      encryptionSecret: "4ws8syoOgeQX6WFvXuUneGNwy7QvLxpk",
+      encryptionSecret: '4ws8syoOgeQX6WFvXuUneGNwy7QvLxpk',
     },
-  });
+  })
 
-  const job = await quirrel.enqueue("hello world");
+  const job = await quirrel.enqueue('hello world')
 
-  const jobAgainButFetched = await quirrel.getById(job.id);
-  expect(jobAgainButFetched).not.toBeNull();
+  const jobAgainButFetched = await quirrel.getById(job.id)
+  expect(jobAgainButFetched).not.toBeNull()
 
-  const nonExistantJob = await quirrel.getById("non-existant");
-  expect(nonExistantJob).toBeNull();
+  const nonExistantJob = await quirrel.getById('non-existant')
+  expect(nonExistantJob).toBeNull()
 
-  await delay(200);
+  await delay(200)
 
-  expect(encryptedBodies).toHaveLength(1);
-  expect(encryptedBodies[0].startsWith("ddb7:")).toBe(true);
-  expect(decryptedBodies).toEqual(["hello world"]);
+  expect(encryptedBodies).toHaveLength(1)
+  expect(encryptedBodies[0].startsWith('ddb7:')).toBe(true)
+  expect(decryptedBodies).toEqual(['hello world'])
   expect(jobMetadata).toEqual([
     {
       id: job.id,
@@ -64,31 +65,31 @@ test("encryption", async () => {
       nextRepetition: undefined,
       retry: [],
     },
-  ]);
+  ])
 
-  server.teardown();
-  endpoint.close();
-});
+  server.teardown()
+  endpoint.close()
+})
 
-test("catchDecryptionErrors", async () => {
-  const decryptionErrors: Error[] = [];
+test('catchDecryptionErrors', async () => {
+  const decryptionErrors: Error[] = []
   const quirrel = new QuirrelClient({
     async handler() {},
-    route: "/",
+    route: '/',
     config: {
-      applicationBaseUrl: "hello",
-      quirrelBaseUrl: "lelel",
-      encryptionSecret: "4ws8syoOgeQX6WFvXuUneGNwy7QvLxpk",
+      applicationBaseUrl: 'hello',
+      quirrelBaseUrl: 'lelel',
+      encryptionSecret: '4ws8syoOgeQX6WFvXuUneGNwy7QvLxpk',
     },
     catchDecryptionErrors(error) {
-      decryptionErrors.push(error as Error);
+      decryptionErrors.push(error as Error)
     },
-  });
+  })
 
   const result = await (quirrel as any).decryptAndDecodeBody(
-    "This is non-decryptable"
-  );
-  expect(result).toEqual("This is non-decryptable");
+    'This is non-decryptable',
+  )
+  expect(result).toEqual('This is non-decryptable')
 
-  expect(decryptionErrors.length).toBe(1);
-});
+  expect(decryptionErrors.length).toBe(1)
+})

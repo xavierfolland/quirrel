@@ -1,27 +1,28 @@
-import { FastifyPluginCallback } from "fastify";
-import fp from "fastify-plugin";
-import { Logger } from "../shared/logger";
+import { FastifyPluginCallback } from 'fastify'
+import fp from 'fastify-plugin'
 
-declare module "fastify" {
+import { Logger } from '../shared/logger'
+
+declare module 'fastify' {
   interface FastifyInstance {
-    logger?: Logger;
+    logger?: Logger
   }
 }
 
 interface LoggerPluginOpts {
-  logger?: Logger;
+  logger?: Logger
 }
 
 const loggerPlugin: FastifyPluginCallback<LoggerPluginOpts> = (
   fastify,
   { logger },
-  done
+  done,
 ) => {
-  fastify.decorate("logger", logger);
+  fastify.decorate('logger', logger)
 
-  done();
-};
+  done()
+}
 
-export default (fp as any)(loggerPlugin) as FastifyPluginCallback<
-  LoggerPluginOpts
->;
+export default (fp as any)(
+  loggerPlugin,
+) as FastifyPluginCallback<LoggerPluginOpts>

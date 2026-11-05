@@ -1,64 +1,65 @@
-import { JobDTO } from "../../client/job";
-import { DxLogger } from "./dx-logger";
-import { StructuredLogger } from "./structured-logger";
-import pino from "pino";
-import { QueuesUpdateCronBody } from "../scheduler/types/queues/update-cron";
-import { QuietLogger } from "./quiet-logger";
+import pino from 'pino'
+
+import { JobDTO } from '../../client/job'
+import { QueuesUpdateCronBody } from '../scheduler/types/queues/update-cron'
+import { DxLogger } from './dx-logger'
+import { QuietLogger } from './quiet-logger'
+import { StructuredLogger } from './structured-logger'
 
 export interface Logger {
-  log?: pino.Logger;
-  started(address: string, telemetryEnabled: boolean): void;
+  log?: pino.Logger
+  started(address: string, telemetryEnabled: boolean): void
   jobCreated(
     job: JobDTO & {
-      tokenId: string;
-    }
-  ): void;
-  cronUpdated(crons: QueuesUpdateCronBody, deleted: string[]): void;
-  jobDeleted(job: { endpoint: string; id: string; tokenId: string }): void;
+      tokenId: string
+    },
+  ): void
+  cronUpdated(crons: QueuesUpdateCronBody, deleted: string[]): void
+  jobDeleted(job: { endpoint: string; id: string; tokenId: string }): void
   /**
    * @returns function to call when execution is done
    */
   startingExecution(job: {
-    id: string;
-    tokenId: string;
-    endpoint: string;
-    body: string;
-  }): () => void;
+    id: string
+    tokenId: string
+    endpoint: string
+    body: string
+  }): () => void
 
   executionErrored(
     job: {
-      id: string;
-      tokenId: string;
-      endpoint: string;
-      body: string;
+      id: string
+      tokenId: string
+      endpoint: string
+      body: string
     },
-    error: string
-  ): void;
+    error: string,
+  ): void
   // ...
 }
 
-export type LoggerType = "dx" | "structured" | "none" | "quiet" | Logger;
+export type LoggerType = 'dx' | 'structured' | 'none' | 'quiet' | Logger
 
 export function getLogger(
   type?: LoggerType,
-  logger = pino({ level: process.env.LOG_LEVEL || "trace" })
+  logger = pino({ level: process.env.LOG_LEVEL || 'trace' }),
 ): Logger | undefined {
   if (!type) {
-    return undefined;
+    return undefined
   }
 
-  if (typeof type !== "string") {
-    return type;
+  if (typeof type !== 'string') {
+    return type
   }
 
   switch (type) {
-    case "none":
-      return undefined;
-    case "dx":
-      return new DxLogger();
-    case "structured":
-      return new StructuredLogger(logger);
-    case "quiet":
-      return new QuietLogger();
+    case 'none':
+      return undefined
+    case 'dx':
+      return new DxLogger()
+    case 'structured':
+      return new StructuredLogger(logger)
+    case 'quiet':
+      return new QuietLogger()
   }
 }

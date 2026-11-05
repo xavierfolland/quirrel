@@ -1,33 +1,33 @@
-import { FastifyPluginCallback } from "fastify";
-import fastifyStatic from "@fastify/static";
-import * as path from "path";
+import fastifyStatic from '@fastify/static'
+import { FastifyPluginCallback } from 'fastify'
+import * as path from 'path'
 
-const alternativeEntries = ["/", "/cron", "/pending", "/activity-log"];
+const alternativeEntries = ['/', '/cron', '/pending', '/activity-log']
 
 const index: FastifyPluginCallback = (fastify, opts, done) => {
   fastify.register(fastifyStatic, {
-    root: path.join(__dirname, "../../../../../ui"),
+    root: path.join(__dirname, '../../../../../ui'),
     wildcard: false,
     redirect: true,
     schemaHide: true,
     setHeaders(res) {
-      const auth = fastify.adminBasedAuthEnabled;
-      const config = [auth];
-      res.setHeader("Set-Cookie", "Quirrel-UI-Config=" + config.join("-"));
+      const auth = fastify.adminBasedAuthEnabled
+      const config = [auth]
+      res.setHeader('Set-Cookie', 'Quirrel-UI-Config=' + config.join('-'))
     },
-  });
+  })
 
   alternativeEntries.forEach((entryPoint) => {
     fastify.get(
       entryPoint,
       { schema: { hide: true } },
       async (request, reply) => {
-        return reply.sendFile("fastify.html");
-      }
-    );
-  });
+        return reply.sendFile('fastify.html')
+      },
+    )
+  })
 
-  done();
-};
+  done()
+}
 
-export default index;
+export default index

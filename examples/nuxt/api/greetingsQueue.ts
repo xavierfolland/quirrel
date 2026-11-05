@@ -1,5 +1,5 @@
-import { Queue } from "quirrel/nuxt";
+import { Queue } from 'quirrel/nuxt'
 
-export default Queue("greetingsQueue", async (name: string) => {
-  console.log(`Greetings, ${name}!`);
-});
+export default Queue('greetingsQueue', async (name: string) => {
+  console.log(`Greetings, ${name}!`)
+})

@@ -1,56 +1,57 @@
-import { Logger } from "./logger";
-import * as uuid from "uuid";
-import pino from "pino";
-import { JobDTO } from "../../client/job";
-import { QueuesUpdateCronBody } from "../scheduler/types/queues/update-cron";
+import pino from 'pino'
+import * as uuid from 'uuid'
+
+import { JobDTO } from '../../client/job'
+import { QueuesUpdateCronBody } from '../scheduler/types/queues/update-cron'
+import { Logger } from './logger'
 
 export class StructuredLogger implements Logger {
   constructor(
     public readonly log = pino({
-      level: process.env.LOG_LEVEL || "trace",
-    })
+      level: process.env.LOG_LEVEL || 'trace',
+    }),
   ) {}
 
   started(address: string, telemetryEnabled: boolean) {
-    this.log.info(`Listening on ${address}`);
+    this.log.info(`Listening on ${address}`)
 
     if (telemetryEnabled) {
       this.log.info(`
       Quirrel collects completely anonymous telemetry data about general usage,
-      opt-out by setting the DISABLE_TELEMETRY environment variable.`);
+      opt-out by setting the DISABLE_TELEMETRY environment variable.`)
     }
   }
 
   executionErrored(
     job: { tokenId: string; id: string; endpoint: string; body: string },
-    error: string
+    error: string,
   ): void {
-    this.log.error({ error, job }, "Caught error during execution");
+    this.log.error({ error, job }, 'Caught error during execution')
   }
   jobCreated(
     job: JobDTO & {
-      tokenId: string;
-    }
+      tokenId: string
+    },
   ): void {
-    this.log.info({ job }, "Created job.");
+    this.log.info({ job }, 'Created job.')
   }
   jobDeleted(job: { endpoint: string; id: string; tokenId: string }): void {
-    this.log.info({ job }, "Deleted job.");
+    this.log.info({ job }, 'Deleted job.')
   }
   cronUpdated(crons: QueuesUpdateCronBody, deleted: string[]): void {
-    this.log.info({ crons, deleted }, "updated crons");
+    this.log.info({ crons, deleted }, 'updated crons')
   }
   startingExecution(job: {
-    id: string;
-    tokenId: string;
-    endpoint: string;
-    body: string;
+    id: string
+    tokenId: string
+    endpoint: string
+    body: string
   }): () => void {
-    const child = this.log.child({ correlationId: uuid.v4() });
+    const child = this.log.child({ correlationId: uuid.v4() })
 
-    child.info({ job }, "Started execution of job.");
+    child.info({ job }, 'Started execution of job.')
     return () => {
-      child.info({ job }, "Ended execution of job");
-    };
+      child.info({ job }, 'Ended execution of job')
+    }
   }
 }

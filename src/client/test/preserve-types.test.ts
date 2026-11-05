@@ -1,47 +1,48 @@
-import { QuirrelClient } from "..";
-import { run } from "../../api/test/runQuirrel";
-import * as http from "http";
-import delay from "delay";
-import { getAddress } from "./util";
+import delay from 'delay'
+import * as http from 'http'
 
-it("preserves payload types", async () => {
-  const server = await run("Mock");
+import { QuirrelClient } from '..'
+import { run } from '../../api/test/runQuirrel'
+import { getAddress } from './util'
 
-  const decryptedBodies: Date[] = [];
+it('preserves payload types', async () => {
+  const server = await run('Mock')
 
-  let quirrel: QuirrelClient<Date>;
+  const decryptedBodies: Date[] = []
+
+  let quirrel: QuirrelClient<Date>
 
   const endpoint = http
     .createServer((req) => {
-      let body = "";
-      req.on("data", (data) => {
-        body += data;
-      });
-      req.on("end", () => {
-        quirrel.respondTo(body, req.headers);
-      });
+      let body = ''
+      req.on('data', (data) => {
+        body += data
+      })
+      req.on('end', () => {
+        quirrel.respondTo(body, req.headers)
+      })
     })
-    .listen(0);
+    .listen(0)
 
   quirrel = new QuirrelClient({
     async handler(payload) {
-      decryptedBodies.push(payload);
+      decryptedBodies.push(payload)
     },
-    route: "/lol",
+    route: '/lol',
     config: {
       applicationBaseUrl: getAddress(endpoint),
       quirrelBaseUrl: getAddress(server.server),
-      encryptionSecret: "4ws8syoOgeQX6WFvXuUneGNwy7QvLxpk",
+      encryptionSecret: '4ws8syoOgeQX6WFvXuUneGNwy7QvLxpk',
     },
-  });
+  })
 
-  const input = new Date("2021-03-08T08:31:00.843Z");
+  const input = new Date('2021-03-08T08:31:00.843Z')
 
-  await quirrel.enqueue(input);
+  await quirrel.enqueue(input)
 
-  await delay(200);
+  await delay(200)
 
-  expect(decryptedBodies).toEqual([input]);
-  server.teardown();
-  endpoint.close();
-});
+  expect(decryptedBodies).toEqual([input])
+  server.teardown()
+  endpoint.close()
+})

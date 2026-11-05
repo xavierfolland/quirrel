@@ -1,37 +1,35 @@
-import { DxLogger } from "./dx-logger";
+import { DxLogger } from './dx-logger'
 
-const dxLogger = new DxLogger();
+const dxLogger = new DxLogger()
 
-dxLogger.started("localhost:9181", true);
-dxLogger.started("localhost:9181", false);
+dxLogger.started('localhost:9181', true)
+dxLogger.started('localhost:9181', false)
 
 dxLogger.jobCreated({
-  body:
-    '{"a":"very","long":{"json":"object"},"with":{"even":{"more":"attributes"}}}',
-  endpoint: "https://localhost:9181/api/queues",
-  id: "my-random-job",
-  tokenId: "anonymous",
+  body: '{"a":"very","long":{"json":"object"},"with":{"even":{"more":"attributes"}}}',
+  endpoint: 'https://localhost:9181/api/queues',
+  id: 'my-random-job',
+  tokenId: 'anonymous',
   exclusive: false,
   runAt: new Date().toISOString(),
   count: 0,
   retry: [],
-});
+})
 
 const done = dxLogger.startingExecution({
-  body:
-    '{"a":"very","long":{"json":"object"},"with":{"even":{"more":"attributes"}}}',
-  endpoint: "https://localhost:9181/api/queues",
-  id: "my-random-job",
-  tokenId: "anonymous",
-});
+  body: '{"a":"very","long":{"json":"object"},"with":{"even":{"more":"attributes"}}}',
+  endpoint: 'https://localhost:9181/api/queues',
+  id: 'my-random-job',
+  tokenId: 'anonymous',
+})
 
-setTimeout(done, 2000);
+setTimeout(done, 2000)
 
 const done2 = dxLogger.startingExecution({
-  body: "hello world",
-  endpoint: "https://localhost:9181/api/secondQueue",
-  id: "another-job",
-  tokenId: "anonymous",
-});
+  body: 'hello world',
+  endpoint: 'https://localhost:9181/api/secondQueue',
+  id: 'another-job',
+  tokenId: 'anonymous',
+})
 
-setTimeout(done2, 1000);
+setTimeout(done2, 1000)

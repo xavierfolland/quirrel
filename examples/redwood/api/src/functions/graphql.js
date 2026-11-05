@@ -3,10 +3,9 @@ import {
   makeMergedSchema,
   makeServices,
 } from '@redwoodjs/api'
-
 import schemas from 'src/graphql/**/*.{js,ts}'
-import services from 'src/services/**/*.{js,ts}'
 import { db } from 'src/lib/db'
+import services from 'src/services/**/*.{js,ts}'
 
 export const handler = createGraphQLHandler({
   schema: makeMergedSchema({

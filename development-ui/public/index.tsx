@@ -1,7 +1,7 @@
-import { initialize } from "./template";
+import { initialize } from './template'
 
 initialize({
   authentication: {
-    enabled: true
+    enabled: true,
   },
-});
+})

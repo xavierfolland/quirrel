@@ -7,16 +7,16 @@ This recipe schedules a booking reminder to be sent 30 minutes before show-time.
 First, you define your [`Queue`](https://docs.quirrel.dev/api/queue#queue):
 
 ```ts title="api/booking-reminder.ts"
-import { Queue } from "quirrel/next";
+import { Queue } from 'quirrel/next'
 
-export default Queue("api/booking-reminder", async (bookingId) => {
-  const booking = await findBooking(bookingId);
+export default Queue('api/booking-reminder', async (bookingId) => {
+  const booking = await findBooking(bookingId)
 
   await sendSms({
     to: booking.user.phoneNumber,
     body: `Put on your dancing shoes for ${booking.event.title} 🕺`,
-  });
-});
+  })
+})
 ```
 
 Import the above file somewhere else and call `.enqueue` to schedule a the reminder:

@@ -1,41 +1,42 @@
-import { QuirrelClient } from "..";
-import { run } from "../../api/test/runQuirrel";
-import * as http from "http";
-import { expectToBeInRange, getAddress, makeSignal, stopTime } from "./util";
+import * as http from 'http'
 
-test("ms", async () => {
-  const server = await run("Mock");
+import { QuirrelClient } from '..'
+import { run } from '../../api/test/runQuirrel'
+import { expectToBeInRange, getAddress, makeSignal, stopTime } from './util'
 
-  const jobExecuted = makeSignal();
+test('ms', async () => {
+  const server = await run('Mock')
+
+  const jobExecuted = makeSignal()
 
   const endpoint = http
     .createServer((req) => {
-      req.on("data", () => {});
-      req.on("end", () => {
-        jobExecuted.signal();
-      });
+      req.on('data', () => {})
+      req.on('end', () => {
+        jobExecuted.signal()
+      })
     })
-    .listen(0);
+    .listen(0)
 
   const quirrel = new QuirrelClient({
     async handler() {},
-    route: "",
+    route: '',
     config: {
       quirrelBaseUrl: getAddress(server.server),
       applicationBaseUrl: getAddress(endpoint),
     },
-  });
+  })
 
   const duration = await stopTime(async () => {
-    await quirrel.enqueue("hello world", {
-      delay: "50ms",
-    });
+    await quirrel.enqueue('hello world', {
+      delay: '50ms',
+    })
 
-    await jobExecuted();
-  });
+    await jobExecuted()
+  })
 
-  expectToBeInRange(duration, [50, 400]);
+  expectToBeInRange(duration, [50, 400])
 
-  server.teardown();
-  endpoint.close();
-});
+  server.teardown()
+  endpoint.close()
+})

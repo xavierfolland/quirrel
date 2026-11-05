@@ -6,8 +6,7 @@
 //
 // 'src/pages/HomePage/HomePage.js'         -> HomePage
 // 'src/pages/Admin/BooksPage/BooksPage.js' -> AdminBooksPage
-
-import { Router, Route } from '@redwoodjs/router'
+import { Route, Router } from '@redwoodjs/router'
 
 const Routes = () => {
   return (

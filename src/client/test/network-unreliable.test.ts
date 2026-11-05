@@ -1,35 +1,36 @@
-import { QuirrelClient } from "..";
-import http from "http";
-import { getAddress } from "./util";
+import http from 'http'
 
-test("network unreliable", async () => {
-  let callNumber = 0;
+import { QuirrelClient } from '..'
+import { getAddress } from './util'
+
+test('network unreliable', async () => {
+  let callNumber = 0
   const server = http
     .createServer((req, res) => {
-      callNumber++;
+      callNumber++
       if (callNumber === 1) {
         // abort connection
-        res.socket.end();
+        res.socket.end()
       } else if (callNumber === 2) {
-        res.statusCode = 200;
-        res.end();
+        res.statusCode = 200
+        res.end()
       }
     })
-    .listen(0);
+    .listen(0)
 
   const quirrel = new QuirrelClient({
-    route: "",
+    route: '',
     async handler() {},
     config: {
       quirrelBaseUrl: getAddress(server),
       applicationBaseUrl: `http://localhost:4000`,
     },
-  });
+  })
 
-  const response = await quirrel.makeRequest("/");
-  expect(response.status).toBe(200);
+  const response = await quirrel.makeRequest('/')
+  expect(response.status).toBe(200)
 
-  expect(callNumber).toBe(2);
+  expect(callNumber).toBe(2)
 
-  server.close();
-});
+  server.close()
+})

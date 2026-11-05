@@ -1,51 +1,51 @@
-import { Job, QuirrelClient } from "..";
-import { run } from "../../api/test/runQuirrel";
-import { getAddress } from "./util";
+import { Job, QuirrelClient } from '..'
+import { run } from '../../api/test/runQuirrel'
+import { getAddress } from './util'
 
-test("getAll", async () => {
-  const server = await run("Mock");
+test('getAll', async () => {
+  const server = await run('Mock')
 
   const quirrel = new QuirrelClient({
-    route: "",
+    route: '',
     async handler() {},
     config: {
       quirrelBaseUrl: getAddress(server.server),
-      encryptionSecret: "4ws8syoOgeQX6WFvXuUneGNwy7QvLxpk",
-      applicationBaseUrl: "http://localhost",
+      encryptionSecret: '4ws8syoOgeQX6WFvXuUneGNwy7QvLxpk',
+      applicationBaseUrl: 'http://localhost',
     },
-  });
+  })
 
   const jobs = await quirrel.enqueueMany([
     {
-      payload: "hello world",
+      payload: 'hello world',
       options: {
-        delay: "20s",
+        delay: '20s',
       },
     },
     {
-      payload: "hello world",
+      payload: 'hello world',
       options: {
-        delay: "20s",
+        delay: '20s',
       },
     },
     {
-      payload: "hello world",
+      payload: 'hello world',
       options: {
-        delay: "20s",
+        delay: '20s',
       },
     },
-  ]);
+  ])
 
-  const iterator = quirrel.get();
+  const iterator = quirrel.get()
 
-  const { value: fetchedJobs, done } = await iterator.next();
+  const { value: fetchedJobs, done } = await iterator.next()
 
   expect(
-    (fetchedJobs as Job<unknown>[]).map((v) => JSON.stringify(v)).sort()
-  ).toEqual(jobs.map((v) => JSON.stringify(v)).sort());
-  expect(done).toBe(false);
+    (fetchedJobs as Job<unknown>[]).map((v) => JSON.stringify(v)).sort(),
+  ).toEqual(jobs.map((v) => JSON.stringify(v)).sort())
+  expect(done).toBe(false)
 
-  expect((await iterator.next()).done).toBe(true);
+  expect((await iterator.next()).done).toBe(true)
 
-  server.teardown();
-});
+  server.teardown()
+})
